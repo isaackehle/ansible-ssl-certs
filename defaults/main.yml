@@ -23,9 +23,10 @@ sc_key_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.key"
 sc_cert_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.pem"
 sc_dhparam_fn: "{{ sc_deploy_path }}/dhparam.pem"
 
-sc_local_private_key_path: "{{ inventory_dir | default(playbook_dir) }}/files/ssl/{{ sc_common_name }}.key"
-sc_local_cert_path: "{{ inventory_dir | default(playbook_dir) }}/files/ssl/{{ sc_common_name }}.pem"
+sc_local_private_path: "{{ inventory_dir | default(playbook_dir) }}"
 
+sc_key_fn_local: "{{ sc_local_private_path }}/{{ sc_common_name }}.key"
+sc_cert_fn_local: "{{ sc_local_private_path }}/{{ sc_common_name }}.pem"
 
 key_size: "4096"
 dhparam_size: "2048"

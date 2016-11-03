@@ -3,8 +3,8 @@
     copy: src={{ item.src }} dest={{ item.dest }} owner={{ sc_deploy_owner }} group={{ sc_deploy_group }} mode={{ sc_mode }}
     when: ( stat_key.stat.exists and stat_cert.stat.exists )
     with_items:
-      - { src: "{{ sc_local_cert_path }}", dest: "{{ sc_cert_fn }}" }
-      - { src: "{{ sc_local_private_key_path }}", dest: "{{ sc_key_fn }}" }
+      - { src: "{{ sc_cert_fn_local }}", dest: "{{ sc_cert_fn }}" }
+      - { src: "{{ sc_key_fn_local }}", dest: "{{ sc_key_fn }}" }
 
   - name: Copy SSL certificate data
     copy: content={{ item.content }} dest={{ item.dest }} owner={{ sc_deploy_owner }} group={{ sc_deploy_group }} mode={{ sc_mode }}

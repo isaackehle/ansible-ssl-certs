@@ -9,20 +9,20 @@
   - name: Ensure sc_certs_path exists
     file: path={{ sc_certs_path }} state=directory owner={{ sc_deploy_owner }} group={{ sc_deploy_group }} mode={{ sc_mode }}
 
-  - local_action: stat path={{ sc_local_private_key_path }}
+  - local_action: stat path={{ sc_key_fn_local }}
     register: stat_key
     become: no
 
-  - local_action: stat path={{ sc_local_cert_path }}
+  - local_action: stat path={{ sc_cert_fn_local }}
     register: stat_cert
     become: no
 
   - name: Test if private_key file is needed
-    fail: msg = "sc_local_private_key_path {{ sc_local_private_key_path }} is missing"
+    fail: msg = "sc_key_fn_local {{ sc_key_fn_local }} is missing"
     when: not stat_key.stat.exists and stat_cert.stat.exists
 
   - name: Test if cert file is needed
-    fail: msg = "sc_local_cert_path {{ sc_local_cert_path }} is missing"
+    fail: msg = "sc_cert_fn_local {{ sc_cert_fn_local }} is missing"
     when: stat_key.stat.exists and not stat_cert.stat.exists
 
   - include: generate-csr.yml
