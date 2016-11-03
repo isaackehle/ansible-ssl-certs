@@ -1,0 +1,36 @@
+---
+sc_country: "US"
+sc_locality: "Raleigh"
+sc_state: "North Carolina"
+sc_organization: "Your company"
+#sc_common_name: "{{ ansible_fqdn }}"
+sc_common_name: "{{ serverName }}"
+sc_days: "365"
+sc_subject: "/C={{ sc_country }}/ST={{ sc_state }}/L={{ sc_locality }}/O={{ sc_organization }}/CN={{ sc_common_name }}"
+
+sc_mode: "0700"
+
+sc_certs_path: "~/certs"
+sc_certs_owner: "www-data"
+sc_certs_group: "www-data"
+
+sc_deploy_path: "/etc/ssl/{{ sc_common_name }}"
+sc_deploy_owner: "www-data"
+sc_deploy_group: "www-data"
+
+sc_csr_fn: "{{ sc_certs_path }}/{{ sc_common_name }}.csr"
+
+sc_key_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.key"
+sc_cert_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.pem"
+sc_dhparam_fn: "{{ sc_deploy_path }}/dhparam.pem"
+
+sc_local_private_key_path: "{{ inventory_dir | default(playbook_dir) }}/files/ssl/{{ sc_common_name }}.key"
+sc_local_cert_path: "{{ inventory_dir | default(playbook_dir) }}/files/ssl/{{ sc_common_name }}.pem"
+
+
+key_size: "4096"
+dhparam_size: "2048"
+
+generate_csr: false
+generate_ssc: false
+generate_dh_param: false

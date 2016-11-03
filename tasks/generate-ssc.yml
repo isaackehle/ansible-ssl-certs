@@ -1,0 +1,8 @@
+---
+  - name: Generate self-signed SSL certificate
+    command: openssl req -nodes -x509 -days {{ sc_days }} -in {{ sc_csr_fn }} -key {{ sc_key_fn }} -out {{ sc_cert_fn }} -extensions v3_ca creates={{ sc_cert_fn }}
+    when: generate_ssc
+
+  - name: Self-signed SSL certificate file ownership
+    file: path={{ sc_cert_fn }} owner={{ sc_deploy_owner }} group={{ sc_deploy_group }} mode={{ sc_mode }}
+    when: generate_ssc
