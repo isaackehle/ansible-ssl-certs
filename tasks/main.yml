@@ -28,11 +28,11 @@
     become: no
 
   - name: Test if private_key file is needed
-    fail: msg="Privkey file {{ sc_local_private_key_path }} is missing"
+    fail: msg = "sc_local_private_key_path {{ sc_local_private_key_path }} is missing"
     when: not stat_key.stat.exists and stat_cert.stat.exists
 
   - name: Test if cert file is needed
-    fail: msg="Cert file {{ sc_local_cert_path }} is missing"
+    fail: msg = "sc_local_cert_path {{ sc_local_cert_path }} is missing"
     when: stat_key.stat.exists and not stat_cert.stat.exists
 
   - include: generate-csr.yml
