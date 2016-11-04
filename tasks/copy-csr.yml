@@ -8,7 +8,7 @@
     local_action: raw mkdir -p {{ sc_local_cert_path }}
     when: ( not stat_local_cert_path.stat.exists )
 
-  - name: Copy CSR {{ sc_csr_fn }} -> {{ sc_csr_fn_local }}
+  - name: Copy CSR to local private directory
     fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
     become: true
 #    copy: src={{ item.src }} dest={{ item.dest }} owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_mode }}

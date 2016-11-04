@@ -21,7 +21,7 @@
   - include: generate-csr.yml
     when: >
       ( generate_csr|bool == true ) and
-      ( not stat_csr_remote.stat.exists )
+      ( not stat_csr_remote.stat.exists or force|bool == true)
 
   #
   # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
@@ -30,8 +30,7 @@
   - include: copy-csr.yml
     when: >
       ( generate_csr|bool == true ) and
-      ( not stat_csr_local.stat.exists )
-
+      ( not stat_csr_local.stat.exists or force|bool == true)
 
   #
   # This section tests whether the user wants to generate the Self-Signed Certificate

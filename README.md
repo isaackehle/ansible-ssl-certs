@@ -6,13 +6,14 @@ Available on Ansible Galaxy: [pgkehle.ssl-certs](https://galaxy.ansible.com/pgke
 
 # Examples
 
-## Example to generate a SSL CSR
+## Example to generate a Certificate Signing Request 
 
 ```YAML
  - hosts: all
    roles:
      - pgkehle.ssl-certs
        generate_csr: true
+       force: true
 ```
 
 This will create a csr in:

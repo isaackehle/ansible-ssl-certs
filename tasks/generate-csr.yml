@@ -1,5 +1,6 @@
 ---
   - name: Creating CSR and RSA key
-    command: openssl req -nodes -sha256 -newkey rsa:{{ key_size }} -keyout {{ sc_key_fn }} -passout pass:'{{ passphrase }}' -out {{ sc_csr_fn }} -subj "{{ sc_subject }}"
+    command: openssl req -nodes -sha256 -newkey rsa:{{ key_size }} -keyout {{ sc_key_fn }} -out {{ sc_csr_fn }} -subj "{{ sc_subject }}" -passout pass:'{{ passphrase }}'
     become: true
+
 
