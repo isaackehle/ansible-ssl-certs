@@ -4,41 +4,65 @@
     when: ansible_os_family == "Debian"
 
   - name: Ensure sc_deploy_path exists
-    file: path={{ sc_deploy_path }} state=directory owner={{ sc_deploy_owner }} group={{ sc_deploy_group }} mode={{ sc_mode }}
+    file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_mode }}
+    become: yes
 
-  - name: Ensure sc_certs_path exists
-    file: path={{ sc_certs_path }} state=directory owner={{ sc_deploy_owner }} group={{ sc_deploy_group }} mode={{ sc_mode }}
+  #
+  # Create a CSR if it does not exist, and user wants to generate one
+  #
+  - local_action: stat path={{ sc_csr_fn_local }}
+    register: stat_csr_local
+    become: false
 
-  - local_action: stat path={{ sc_key_fn_local }}
-    register: stat_key
-    become: no
-
-  - local_action: stat path={{ sc_cert_fn_local }}
-    register: stat_cert
-    become: no
-
-  - name: Test if private_key file is needed
-    fail: msg = "sc_key_fn_local {{ sc_key_fn_local }} is missing"
-    when: not stat_key.stat.exists and stat_cert.stat.exists
-
-  - name: Test if cert file is needed
-    fail: msg = "sc_cert_fn_local {{ sc_cert_fn_local }} is missing"
-    when: stat_key.stat.exists and not stat_cert.stat.exists
+  - stat: path={{ sc_csr_fn }}
+    register: stat_csr_remote
+    become: true
 
   - include: generate-csr.yml
     when: >
       ( generate_csr|bool == true ) and
-      ( not stat_key.stat.exists and not stat_cert.stat.exists )
+      ( not stat_csr_remote.stat.exists )
 
-  - include: generate-ssc.yml
+  #
+  # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
+  #
+
+  - include: copy-csr.yml
     when: >
-      ( generate_ssc|bool == true ) and
-      ( not stat_key.stat.exists and not stat_cert.stat.exists )
+      ( generate_csr|bool == true ) and
+      ( not stat_csr_local.stat.exists )
 
-  - include: copy-ssc.yml
-    when: >
-      ( generate_csr|bool == true )
 
-  - name: Generate strong DHE parameter - https://weakdh.org/
-    command: openssl dhparam -out {{ sc_dhparam_fn }} {{ dhparam_size }} creates={{ sc_dhparam_fn }}
-    when: ( generate_dh_param|bool == true )
+  #
+  # This section tests whether the user wants to generate the Self-Signed Certificate
+  #
+
+
+#  - local_action: stat path={{ sc_key_fn_local }}
+#    register: stat_key
+#    become: false
+#
+#  - local_action: stat path={{ sc_cert_fn_local }}
+#    register: stat_cert
+#    become: false
+#
+#  - name: Test if key file is needed
+#    fail: msg = "sc_key_fn_local {{ sc_key_fn_local }} is missing"
+#    when: not stat_key.stat.exists and stat_cert.stat.exists
+#
+#  - name: Test if cert file is needed
+#    fail: msg = "sc_cert_fn_local {{ sc_cert_fn_local }} is missing"
+#    when: stat_key.stat.exists and not stat_cert.stat.exists
+
+#  - include: generate-ssc.yml
+#    when: >
+#      ( generate_ssc|bool == true ) and
+#      ( not stat_key.stat.exists and not stat_cert.stat.exists )
+#
+#  - include: copy-ssc.yml
+#    when: >
+#      ( generate_csr|bool == true )
+#
+#  - name: Generate strong DHE parameter - https://weakdh.org/
+#    command: openssl dhparam -out {{ sc_dhparam_fn }} {{ dhparam_size }} creates={{ sc_dhparam_fn }}
+#    when: ( generate_dh_param|bool == true )
