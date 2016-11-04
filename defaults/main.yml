@@ -31,6 +31,7 @@ key_size: "4096"
 dhparam_size: "2048"
 
 generate_csr: false
+copy_csr: false
 generate_ssc: false
 generate_dh_param: false
 force: false

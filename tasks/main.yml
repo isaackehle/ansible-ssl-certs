@@ -8,12 +8,19 @@
     become: yes
 
   #
-  # Create a CSR if it does not exist, and user wants to generate one
+  # Check which local files exist
   #
   - local_action: stat path={{ sc_csr_fn_local }}
     register: stat_csr_local
     become: false
 
+  - local_action: stat path={{ sc_key_fn_local }}
+    register: stat_key_local
+    become: false
+
+  #
+  # Create a CSR if it does not exist, and user wants to generate one
+  #
   - stat: path={{ sc_csr_fn }}
     register: stat_csr_remote
     become: true
@@ -29,34 +36,30 @@
 
   - include: copy-csr.yml
     when: >
-      ( generate_csr|bool == true ) and
-      ( not stat_csr_local.stat.exists or force|bool == true)
+      ( generate_csr|bool == true or copy_csr|bool == true ) and
+      ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
 
   #
   # This section tests whether the user wants to generate the Self-Signed Certificate
   #
 
 
-#  - local_action: stat path={{ sc_key_fn_local }}
-#    register: stat_key
-#    become: false
-#
 #  - local_action: stat path={{ sc_cert_fn_local }}
 #    register: stat_cert
 #    become: false
 #
 #  - name: Test if key file is needed
 #    fail: msg = "sc_key_fn_local {{ sc_key_fn_local }} is missing"
-#    when: not stat_key.stat.exists and stat_cert.stat.exists
+#    when: not stat_key_local.stat.exists and stat_cert.stat.exists
 #
 #  - name: Test if cert file is needed
 #    fail: msg = "sc_cert_fn_local {{ sc_cert_fn_local }} is missing"
-#    when: stat_key.stat.exists and not stat_cert.stat.exists
+#    when: stat_key_local.stat.exists and not stat_cert.stat.exists
 
 #  - include: generate-ssc.yml
 #    when: >
 #      ( generate_ssc|bool == true ) and
-#      ( not stat_key.stat.exists and not stat_cert.stat.exists )
+#      ( not stat_key_local.stat.exists and not stat_cert.stat.exists )
 #
 #  - include: copy-ssc.yml
 #    when: >
