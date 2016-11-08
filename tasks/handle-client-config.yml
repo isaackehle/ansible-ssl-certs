@@ -1,0 +1,18 @@
+---
+
+# https://docs.mongodb.com/manual/tutorial/configure-x509-client-authentication/
+# http://www.mad-hacking.net/documentation/linux/security/ssl-tls/creating-csr.xml
+
+# Must have in SSL Configuration:
+#
+#   keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement
+#   extendedKeyUsage = clientAuth
+#
+# Defaults:
+#   keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+#   # extendedKeyUsage = critical,timeStamping
+#
+
+  - name: Updating Client Config
+    replace: dest=/etc/ssl/openssl.cnf regexp='# extendedKeyUsage = critical,timeStamping$' replace='extendedKeyUsage = clientAuth' backup=yes
+    become: true

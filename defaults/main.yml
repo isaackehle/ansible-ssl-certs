@@ -1,15 +1,17 @@
 ---
-sc_country: "US"
-sc_locality: "Raleigh"
-sc_state: "North Carolina"
-sc_organization: "Your company"
-sc_common_name: "{{ ansible_fqdn }}"
+sc_country: ""
+sc_locality: ""
+sc_state: ""
+sc_organization: ""
+sc_ou: ""
+sc_common_name: ""
+sc_domain_comp: ""
+sc_email: ""
+
 sc_days: "365"
-sc_subject: "/C={{ sc_country }}/ST={{ sc_state }}/L={{ sc_locality }}/O={{ sc_organization }}/CN={{ sc_common_name }}"
+sc_subject: ""
 
 sc_mode: "0700"
-
-sc_certs_path: "~/certs"
 
 sc_deploy_path: "/etc/ssl/{{ sc_common_name }}"
 sc_owner: "root"
@@ -30,6 +32,7 @@ sc_cert_fn_local: "{{ sc_local_cert_path }}/{{ sc_common_name }}.pem"
 key_size: "4096"
 dhparam_size: "2048"
 
+do_client_config: false
 generate_csr: false
 copy_csr: false
 generate_ssc: false

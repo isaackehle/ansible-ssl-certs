@@ -19,6 +19,13 @@
     become: false
 
   #
+  # Enable client configuration for OpenSSL, if requested
+  #
+  - include: handle-client-config.yml
+    when: >
+      ( do_client_config|bool == true )
+
+  #
   # Create a CSR if it does not exist, and user wants to generate one
   #
   - stat: path={{ sc_csr_fn }}
@@ -42,6 +49,9 @@
   #
   # This section tests whether the user wants to generate the Self-Signed Certificate
   #
+
+
+
 
 
 #  - local_action: stat path={{ sc_cert_fn_local }}
