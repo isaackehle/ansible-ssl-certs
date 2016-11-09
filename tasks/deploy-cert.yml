@@ -1,0 +1,23 @@
+---
+# This deploys the CA-signed cert from the local host to the remote
+
+  - name: Ensure remote path exists
+    file: path="{{ sc_deploy_path }}" state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
+
+  - name: Create chain file
+    local_action: shell cat {{ sc_key_local }} {{ sc_cert_local }} > {{ sc_chain_local }}
+
+  - name: Copy certs that are to be deployed
+#    debug: msg="item={{ item }}"
+    copy: src={{ item.src }} dest={{ item.dest }} owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_mode }}
+
+    become: true
+    with_items:
+      - { src: "{{ sc_cert_local }}", dest: "{{ sc_cert_remote }}" }
+      - { src: "{{ sc_interm_local }}", dest: "{{ sc_interm_remote }}" }
+      - { src: "{{ sc_chain_local }}", dest: "{{ sc_chain_remote }}" }
+
+#  - name: Create chain file
+#    command: cat {{ sc_key_remote }} {{ sc_cert_remote }} > {{ sc_chain_remote }}
+#    become: true
+#

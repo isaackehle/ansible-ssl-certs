@@ -1,40 +1,45 @@
 ---
-sc_country: ""
-sc_locality: ""
-sc_state: ""
-sc_organization: ""
-sc_ou: ""
-sc_common_name: ""
-sc_domain_comp: ""
-sc_email: ""
+sc_country:         ""
+sc_locality:        ""
+sc_state:           ""
+sc_organization:    ""
+sc_ou:              ""
+sc_common_name:     ""
+sc_domain_comp:     ""
+sc_email:           ""
+sc_subject:         ""
 
-sc_days: "365"
-sc_subject: ""
+sc_mode:            "0644"
+sc_owner:           "root"
+sc_group:           "root"
 
-sc_mode: "0700"
-
-sc_deploy_path: "/etc/ssl/{{ sc_common_name }}"
-sc_owner: "root"
-sc_group: "root"
-
-sc_csr_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.csr"
-sc_key_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.key"
-sc_cert_fn: "{{ sc_deploy_path }}/{{ sc_common_name }}.pem"
-sc_dhparam_fn: "{{ sc_deploy_path }}/dhparam.pem"
-
-sc_local_path: "{{ inventory_dir | default(playbook_dir) }}"
+sc_local_path:      "{{ inventory_dir | default(playbook_dir) }}"
 sc_local_cert_path: "{{ sc_local_path }}/{{ sc_common_name }}"
+sc_deploy_path:     "/etc/ssl/{{ sc_common_name }}"
+sc_deploy_mode:     "0755"
 
-sc_csr_fn_local: "{{ sc_local_cert_path }}/{{ sc_common_name }}.csr"
-sc_key_fn_local: "{{ sc_local_cert_path }}/{{ sc_common_name }}.key"
-sc_cert_fn_local: "{{ sc_local_cert_path }}/{{ sc_common_name }}.pem"
+sc_csr_remote:      "{{ sc_deploy_path }}/{{ sc_common_name }}.csr"
+sc_key_remote:      "{{ sc_deploy_path }}/{{ sc_common_name }}.key"
+sc_cert_remote:     "{{ sc_deploy_path }}/{{ sc_common_name }}.cert.pem"
+sc_chain_remote:    "{{ sc_deploy_path }}/{{ sc_common_name }}.chain.pem"
+sc_interm_remote:   "{{ sc_deploy_path }}/{{ sc_common_name }}.intermediate.pem"
 
-key_size: "4096"
-dhparam_size: "2048"
+sc_csr_local:       "{{ sc_local_cert_path }}/{{ sc_common_name }}.csr"
+sc_key_local:       "{{ sc_local_cert_path }}/{{ sc_common_name }}.key"
+sc_cert_local:      "{{ sc_local_cert_path }}/{{ sc_common_name }}.cert.pem"
+sc_chain_local:     "{{ sc_local_cert_path }}/{{ sc_common_name }}.chain.pem"
+sc_interm_local:    "{{ sc_local_cert_path }}/{{ sc_common_name }}.intermediate.pem"
 
-do_client_config: false
-generate_csr: false
-copy_csr: false
-generate_ssc: false
-generate_dh_param: false
-force: false
+sc_dhparam_fn:      "{{ sc_deploy_path }}/dhparam.pem"
+
+key_size:           "4096"
+dhparam_size:       "2048"
+sc_days:            "365"
+
+do_client_config:   false
+generate_csr:       false
+pull_csr:           false
+generate_ssc:       false
+deploy_cert:        false
+generate_dh_param:  false
+force:              false

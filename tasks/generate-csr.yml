@@ -40,7 +40,7 @@
       sc_subject: "{{ subj_list | join('') }}"
 
   - set_fact:
-      openssl_args: "req -nodes -sha256 -newkey rsa:{{ key_size }} -keyout {{ sc_key_fn }} -out {{ sc_csr_fn }} -subj \"{{ sc_subject }}\""
+      openssl_args: "req -nodes -sha256 -newkey rsa:{{ key_size }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }} -subj \"{{ sc_subject }}\""
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"

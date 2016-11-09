@@ -4,17 +4,17 @@
     when: ansible_os_family == "Debian"
 
   - name: Ensure sc_deploy_path exists
-    file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_mode }}
+    file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
     become: yes
 
   #
   # Check which local files exist
   #
-  - local_action: stat path={{ sc_csr_fn_local }}
+  - local_action: stat path={{ sc_csr_local }}
     register: stat_csr_local
     become: false
 
-  - local_action: stat path={{ sc_key_fn_local }}
+  - local_action: stat path={{ sc_key_local }}
     register: stat_key_local
     become: false
 
@@ -28,7 +28,7 @@
   #
   # Create a CSR if it does not exist, and user wants to generate one
   #
-  - stat: path={{ sc_csr_fn }}
+  - stat: path={{ sc_csr_remote }}
     register: stat_csr_remote
     become: true
 
@@ -41,29 +41,33 @@
   # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
   #
 
-  - include: copy-csr.yml
+  - include: pull-csr.yml
     when: >
-      ( generate_csr|bool == true or copy_csr|bool == true ) and
+      ( generate_csr|bool == true or pull_csr|bool == true ) and
       ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
 
   #
   # This section tests whether the user wants to generate the Self-Signed Certificate
   #
 
+  #
+  # Deploy
+  #
+  - include: deploy-cert.yml
+    when: >
+      ( deploy_cert|bool == true )
 
 
-
-
-#  - local_action: stat path={{ sc_cert_fn_local }}
+#  - local_action: stat path={{ sc_cert_local }}
 #    register: stat_cert
 #    become: false
 #
 #  - name: Test if key file is needed
-#    fail: msg = "sc_key_fn_local {{ sc_key_fn_local }} is missing"
+#    fail: msg = "sc_key_local {{ sc_key_local }} is missing"
 #    when: not stat_key_local.stat.exists and stat_cert.stat.exists
 #
 #  - name: Test if cert file is needed
-#    fail: msg = "sc_cert_fn_local {{ sc_cert_fn_local }} is missing"
+#    fail: msg = "sc_cert_local {{ sc_cert_local }} is missing"
 #    when: stat_key_local.stat.exists and not stat_cert.stat.exists
 
 #  - include: generate-ssc.yml

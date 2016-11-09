@@ -8,5 +8,5 @@
     fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
     become: true
     with_items:
-      - { src: "{{ sc_csr_fn }}", dest: "{{ sc_csr_fn_local }}" }
-      - { src: "{{ sc_key_fn }}", dest: "{{ sc_key_fn_local }}" }
+      - { src: "{{ sc_csr_remote }}", dest: "{{ sc_csr_local }}" }
+      - { src: "{{ sc_key_remote }}", dest: "{{ sc_key_local }}" }

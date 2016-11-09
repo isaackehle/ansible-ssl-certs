@@ -8,7 +8,7 @@ Available on Ansible Galaxy: [pgkehle.ssl-certs](https://galaxy.ansible.com/pgke
 
 ```
 generate_csr            set to true to generate a new CSR
-copy_csr                set to true to copy CSR local
+pull_csr                set to true to copy CSR local
 do_client_config        set to true to ensure the proper SSL settings for generating a client certificate
 generate_ssc            set to true to create a Self Signed Certificate
 generate_dh_param       set to true to generate a dhparam file
@@ -39,9 +39,15 @@ sc_domain_comp          Domain Component for the cert, if any
        force: true
 ```
 
-This will create a csr in:
+## Example to move a certificate into place 
 
-- `~/certs/<fqdn>.csr`
+```YAML
+ - hosts: all
+   roles:
+     - pgkehle.ssl-certs
+       deploy_cert: true
+```
+
 
 
 ## License

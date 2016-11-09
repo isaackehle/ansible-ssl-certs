@@ -1,0 +1,12 @@
+---
+# This copies the SSC from the remote host to local
+
+  - name: Ensure local path exists
+    local_action: file path="{{ sc_local_cert_path }}" state=directory
+
+  - name: Copy CSR/Key to local private directory
+    fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
+    become: true
+    with_items:
+      - { src: "{{ sc_cert_remote }}", dest: "{{ sc_cert_local }}" }
+      - { src: "{{ sc_interm_remote }}", dest: "{{ sc_interm_local }}" }
