@@ -40,7 +40,15 @@
       sc_subject: "{{ subj_list | join('') }}"
 
   - set_fact:
-      openssl_args: "req -nodes -sha256 -newkey rsa:{{ key_size }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }} -subj \"{{ sc_subject }}\""
+      openssl_args: "req -nodes -sha256 -newkey rsa:{{ key_size }} -subj \"{{ sc_subject }}\""
+
+  - set_fact:
+      openssl_args: "{{ openssl_args }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }}"
+    when: generate_local|bool == false
+
+  - set_fact:
+      openssl_args: "{{ openssl_args }} -keyout {{ sc_key_local }} -out {{ sc_csr_local }}"
+    when: generate_local|bool == true
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"
@@ -51,5 +59,9 @@
   - name: Creating CSR and RSA key
     command: openssl {{ openssl_args }}
     become: true
+    when: generate_local|bool == false
 
-
+  - name: Creating CSR and RSA key
+    local_action: command openssl {{ openssl_args }}
+#    become: true
+    when: generate_local|bool == true

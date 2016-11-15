@@ -43,3 +43,4 @@ generate_ssc:       false
 deploy_cert:        false
 generate_dh_param:  false
 force:              false
+generate_local:     false

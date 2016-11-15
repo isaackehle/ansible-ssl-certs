@@ -1,11 +1,12 @@
 ---
   - name: Ensure OpenSSL is installed
     apt: name=openssl state=present
-    when: ansible_os_family == "Debian"
+    when: ansible_os_family is defined and ansible_os_family == "Debian"
 
   - name: Ensure sc_deploy_path exists
     file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
     become: yes
+    when: generate_local|bool == false
 
   #
   # Check which local files exist
@@ -22,20 +23,24 @@
   # Enable client configuration for OpenSSL, if requested
   #
   - include: handle-client-config.yml
-    when: >
-      ( do_client_config|bool == true )
+    when: do_client_config|bool == true
 
   #
-  # Create a CSR if it does not exist, and user wants to generate one
+  # Create a CSR on the server if it does not exist, and user wants to generate one
   #
   - stat: path={{ sc_csr_remote }}
     register: stat_csr_remote
     become: true
+    when: generate_local|bool == false
+
+  - debug: msg="stat_csr_remote = {{ stat_csr_remote }}"
+  - debug: msg="stat_csr_local = {{ stat_csr_local }}"
 
   - include: generate-csr.yml
     when: >
       ( generate_csr|bool == true ) and
-      ( not stat_csr_remote.stat.exists or force|bool == true)
+        ( stat_csr_remote is defined and stat_csr_remote.stat is defined and not stat_csr_remote.stat.exists or
+          not stat_csr_local.stat.exists or force|bool == true )
 
   #
   # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
@@ -54,8 +59,7 @@
   # Deploy
   #
   - include: deploy-cert.yml
-    when: >
-      ( deploy_cert|bool == true )
+    when: deploy_cert|bool == true
 
 
 #  - local_action: stat path={{ sc_cert_local }}

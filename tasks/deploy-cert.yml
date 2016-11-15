@@ -4,8 +4,9 @@
   - name: Ensure remote path exists
     file: path="{{ sc_deploy_path }}" state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
 
-  - name: Create chain file
-    local_action: shell cat {{ sc_key_local }} {{ sc_cert_local }} > {{ sc_chain_local }}
+  - local_action: shell cat {{ sc_cert_local }} > {{ sc_chain_local }}
+  - local_action: shell echo " " >> {{ sc_chain_local }}
+  - local_action: shell cat {{ sc_key_local }} >> {{ sc_chain_local }}
 
   - name: Copy certs that are to be deployed
 #    debug: msg="item={{ item }}"
