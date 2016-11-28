@@ -36,11 +36,11 @@ key_size:           "4096"
 dhparam_size:       "2048"
 sc_days:            "365"
 
-do_client_config:   false
+client_config:      false
 generate_csr:       false
 pull_csr:           false
 generate_ssc:       false
 deploy_cert:        false
 generate_dh_param:  false
 force:              false
-generate_local:     false
+is_local:           false

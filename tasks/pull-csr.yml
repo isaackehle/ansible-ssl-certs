@@ -1,7 +1,7 @@
 ---
 # This copies the CSR from the remote host to local, so that it can be supplied to the CA for submittal.
 
-  - name: Ensure local path exists
+  - name: Ensure local path exists (pull csr)
     local_action: file path="{{ sc_local_cert_path }}" state=directory
 
   - name: Copy CSR/Key to local private directory
@@ -10,4 +10,3 @@
     with_items:
       - { src: "{{ sc_csr_remote }}", dest: "{{ sc_csr_local }}" }
       - { src: "{{ sc_key_remote }}", dest: "{{ sc_key_local }}" }
-    when: generate_local|bool == false

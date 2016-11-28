@@ -7,12 +7,13 @@ Available on Ansible Galaxy: [pgkehle.ssl-certs](https://galaxy.ansible.com/pgke
 # Input and Variables
 
 ```
-generate_csr            set to true to generate a new CSR
-pull_csr                set to true to copy CSR local
-do_client_config        set to true to ensure the proper SSL settings for generating a client certificate
-generate_ssc            set to true to create a Self Signed Certificate
-generate_dh_param       set to true to generate a dhparam file
 force                   set to true to force any of the previous actions
+client_config           set to true to ensure the proper SSL settings for generating a client certificate
+generate_csr            set to true to generate a new CSR on a remote machine
+pull_csr                set to true to copy CSR local
+generate_ssc            set to true to create a Self Signed Certificate
+dh_param                set to true to generate a dhparam file
+is_local                set tp true when local, not remote
 
 sc_local_path           Local path for cert CSR/signed cert storage
 
@@ -26,26 +27,30 @@ sc_common_name          Common name for the cert, usually fqdn
 sc_domain_comp          Domain Component for the cert, if any
 ```
 
-# Examples
+## Examples
 
-## Example to generate a Certificate Signing Request 
+### Example to generate a Certificate Signing Request 
 
 ```YAML
  - hosts: all
+   vars: 
+     is_local: false
+   vars: 
+     generate_csr: true
+     force: true
+     client_config: true
    roles:
-     - pgkehle.ssl-certs
-       generate_csr: true
-       do_client_config: true
-       force: true
+     - { role: pgkehle.ssl-certs }
 ```
 
 ## Example to move a certificate into place 
 
 ```YAML
  - hosts: all
+   tags: 
+     - deploy_cert 
    roles:
      - pgkehle.ssl-certs
-       deploy_cert: true
 ```
 
 

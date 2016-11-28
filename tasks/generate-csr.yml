@@ -34,7 +34,7 @@
       subj_list: "{{ subj_list }} + ['/DC={{ sc_domain_comp }}']"
     when: sc_domain_comp is defined and not sc_domain_comp == ""
 
-  - debug: "msg='subj_list: {{ subj_list }}'"
+#  - debug: "msg='subj_list: {{ subj_list }}'"
 
   - set_fact:
       sc_subject: "{{ subj_list | join('') }}"
@@ -44,11 +44,11 @@
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }}"
-    when: generate_local|bool == false
+    when: is_local|bool == false
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -keyout {{ sc_key_local }} -out {{ sc_csr_local }}"
-    when: generate_local|bool == true
+    when: is_local|bool == true
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"
@@ -56,12 +56,12 @@
 
   - debug: "msg='openssl_args: {{ openssl_args }}'"
 
-  - name: Creating CSR and RSA key
+  - name: Creating CSR and RSA key (remote)
     command: openssl {{ openssl_args }}
     become: true
-    when: generate_local|bool == false
+    when: is_local|bool == false
 
-  - name: Creating CSR and RSA key
+  - name: Creating CSR and RSA key (local)
     local_action: command openssl {{ openssl_args }}
 #    become: true
-    when: generate_local|bool == true
+    when: is_local|bool == true

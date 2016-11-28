@@ -6,7 +6,7 @@
   - name: Ensure sc_deploy_path exists
     file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
     become: yes
-    when: generate_local|bool == false
+    when: is_local|bool == false and generate_csr|bool == true
 
   #
   # Check which local files exist
@@ -23,7 +23,7 @@
   # Enable client configuration for OpenSSL, if requested
   #
   - include: handle-client-config.yml
-    when: do_client_config|bool == true
+    when: client_config|bool == true # and generate_csr|bool == true
 
   #
   # Create a CSR on the server if it does not exist, and user wants to generate one
@@ -31,7 +31,7 @@
   - stat: path={{ sc_csr_remote }}
     register: stat_csr_remote
     become: true
-    when: generate_local|bool == false
+    when: is_local|bool == false and generate_csr|bool == true
 
   - debug: msg="stat_csr_remote = {{ stat_csr_remote }}"
   - debug: msg="stat_csr_local = {{ stat_csr_local }}"
@@ -39,8 +39,10 @@
   - include: generate-csr.yml
     when: >
       ( generate_csr|bool == true ) and
-        ( stat_csr_remote is defined and stat_csr_remote.stat is defined and not stat_csr_remote.stat.exists or
-          not stat_csr_local.stat.exists or force|bool == true )
+      ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
+        not stat_csr_remote.stat.exists or
+        not stat_csr_local.stat.exists or
+        force|bool == true )
 
   #
   # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
@@ -48,7 +50,8 @@
 
   - include: pull-csr.yml
     when: >
-      ( generate_csr|bool == true or pull_csr|bool == true ) and
+      ( generate_csr|bool == true ) or ( pull_csr|bool == true ) and
+      ( is_local|bool == false ) and
       ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
 
   #
@@ -59,7 +62,8 @@
   # Deploy
   #
   - include: deploy-cert.yml
-    when: deploy_cert|bool == true
+    when: >
+      ( deploy_cert|bool == true )
 
 
 #  - local_action: stat path={{ sc_cert_local }}
@@ -76,13 +80,12 @@
 
 #  - include: generate-ssc.yml
 #    when: >
-#      ( generate_ssc|bool == true ) and
-#      ( not stat_key_local.stat.exists and not stat_cert.stat.exists )
+#       ( generate_ssc|bool == true ) and
+#       ( not stat_key_local.stat.exists and not stat_cert.stat.exists )
 #
 #  - include: copy-ssc.yml
-#    when: >
-#      ( generate_csr|bool == true )
+#    when: generate_ssc|bool == true
 #
 #  - name: Generate strong DHE parameter - https://weakdh.org/
 #    command: openssl dhparam -out {{ sc_dhparam_fn }} {{ dhparam_size }} creates={{ sc_dhparam_fn }}
-#    when: ( generate_dh_param|bool == true )
+#    when: dh_param|bool == true
