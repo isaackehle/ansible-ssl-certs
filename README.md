@@ -15,7 +15,7 @@ generate_ssc            set to true to create a Self Signed Certificate
 dh_param                set to true to generate a dhparam file
 is_local                set tp true when local, not remote
 
-sc_local_path           Local path for cert CSR/signed cert storage
+certs_path              Local path for cert CSR/signed cert storage
 
 sc_country              Country for the cert                        
 sc_locality             Locality for the cert

@@ -1,91 +1,89 @@
 ---
-  - name: Ensure OpenSSL is installed
-    apt: name=openssl state=present
-    when: ansible_os_family is defined and ansible_os_family == "Debian"
+- fail: msg="Please ensure '{{ item }}' is set"
+  when:
+    - not {{ item }} is defined or {{ item }} == ""
+  with_items:
+    - certs_path
 
-  - name: Ensure sc_deploy_path exists
-    file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
-    become: yes
-    when: is_local|bool == false and generate_csr|bool == true
+- debug: var=ca_name
 
-  #
-  # Check which local files exist
-  #
-  - local_action: stat path={{ sc_csr_local }}
-    register: stat_csr_local
-    become: false
+- set_fact:
+    sc_local_cert_path: "{{ certs_path }}/{{ sc_common_name }}"
 
-  - local_action: stat path={{ sc_key_local }}
-    register: stat_key_local
-    become: false
+- include: ./set_path.{{ca_name}}.yml
 
-  #
-  # Enable client configuration for OpenSSL, if requested
-  #
-  - include: handle-client-config.yml
-    when: client_config|bool == true # and generate_csr|bool == true
+#  - certs_path:         "{{ inventory_dir | default(playbook_dir) }}"
+  sc_local_cert_path:       "{{ certs_path }}/{{ sc_common_name }}"
 
-  #
-  # Create a CSR on the server if it does not exist, and user wants to generate one
-  #
-  - stat: path={{ sc_csr_remote }}
-    register: stat_csr_remote
-    become: true
-    when: is_local|bool == false and generate_csr|bool == true
+- name: Ensure OpenSSL is installed
+  apt: name=openssl state=present
+  when: ansible_os_family is defined and ansible_os_family == "Debian"
 
-  - debug: msg="stat_csr_remote = {{ stat_csr_remote }}"
-  - debug: msg="stat_csr_local = {{ stat_csr_local }}"
-
-  - include: generate-csr.yml
-    when: >
-      ( generate_csr|bool == true ) and
-      ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
-        not stat_csr_remote.stat.exists or
-        not stat_csr_local.stat.exists or
-        force|bool == true )
-
-  #
-  # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
-  #
-
-  - include: pull-csr.yml
-    when: >
-      ( generate_csr|bool == true ) or ( pull_csr|bool == true ) and
-      ( is_local|bool == false ) and
-      ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
-
-  #
-  # This section tests whether the user wants to generate the Self-Signed Certificate
-  #
-
-  #
-  # Deploy
-  #
-  - include: deploy-cert.yml
-    when: >
-      ( deploy_cert|bool == true )
+- name: Ensure sc_deploy_path exists
+  file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
+  become: yes
+  when: is_local|bool == false and generate_csr|bool == true
 
 
-#  - local_action: stat path={{ sc_cert_local }}
-#    register: stat_cert
-#    become: false
+
 #
-#  - name: Test if key file is needed
-#    fail: msg = "sc_key_local {{ sc_key_local }} is missing"
-#    when: not stat_key_local.stat.exists and stat_cert.stat.exists
+# Check which local files exist
 #
-#  - name: Test if cert file is needed
-#    fail: msg = "sc_cert_local {{ sc_cert_local }} is missing"
-#    when: stat_key_local.stat.exists and not stat_cert.stat.exists
+- local_action: stat path={{ sc_csr_local }}
+  register: stat_csr_local
+  become: false
 
-#  - include: generate-ssc.yml
-#    when: >
-#       ( generate_ssc|bool == true ) and
-#       ( not stat_key_local.stat.exists and not stat_cert.stat.exists )
+- local_action: stat path={{ sc_key_local }}
+  register: stat_key_local
+  become: false
+
 #
-#  - include: copy-ssc.yml
-#    when: generate_ssc|bool == true
+# Enable client configuration for OpenSSL, if requested
 #
-#  - name: Generate strong DHE parameter - https://weakdh.org/
-#    command: openssl dhparam -out {{ sc_dhparam_fn }} {{ dhparam_size }} creates={{ sc_dhparam_fn }}
-#    when: dh_param|bool == true
+- include: handle-client-config.yml
+  when: client_config|bool == true # and generate_csr|bool == true
+
+#
+# Create a CSR on the server if it does not exist, and user wants to generate one
+#
+- stat: path={{ sc_csr_remote }}
+  register: stat_csr_remote
+  become: true
+  when: is_local|bool == false and generate_csr|bool == true
+
+- debug: msg="stat_csr_remote = {{ stat_csr_remote }}"
+- debug: msg="stat_csr_local = {{ stat_csr_local }}"
+
+- include: generate-csr.yml
+  when: >
+    ( generate_csr|bool == true ) and
+    ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
+      not stat_csr_remote.stat.exists or
+      not stat_csr_local.stat.exists or
+      force|bool == true )
+
+#
+# Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
+#
+
+- include: pull-csr.yml
+  when: >
+    ( generate_csr|bool == true ) or ( pull_csr|bool == true ) and
+    ( is_local|bool == false ) and
+    ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
+
+#
+# This section tests whether the user wants to generate the Self-Signed Certificate
+#
+
+#
+# Deploy
+#
+- include: deploy-cert.yml
+  when: deploy_cert|bool == true
+
+#
+# Deploy All Hosts
+#
+- include: deploy-all.yml
+  when: deploy_all|bool == true
