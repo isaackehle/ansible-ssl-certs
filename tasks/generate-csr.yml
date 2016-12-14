@@ -44,11 +44,11 @@
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }}"
-    when: is_local|bool == false
+    when: ansible_host != 'localhost'
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -keyout {{ sc_key_local }} -out {{ sc_csr_local }}"
-    when: is_local|bool == true
+    when: ansible_host == 'localhost'
 
   - set_fact:
       openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"
@@ -59,9 +59,9 @@
   - name: Creating CSR and RSA key (remote)
     command: openssl {{ openssl_args }}
     become: true
-    when: is_local|bool == false
+    when: ansible_host != 'localhost'
 
   - name: Creating CSR and RSA key (local)
     local_action: command openssl {{ openssl_args }}
-#    become: true
-    when: is_local|bool == true
+    become: false
+    when: ansible_host == 'localhost'
