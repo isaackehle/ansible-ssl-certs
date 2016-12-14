@@ -1,0 +1,8 @@
+---
+
+- set_fact:
+    sc_incommon_prefix:       "{{ sc_common_name }}"
+
+- set_fact:
+    sc_cert_local:            "{{ sc_local_cert_path }}/{{ sc_incommon_prefix }}.cert.cer"
+    sc_interm_local:          "{{ sc_local_cert_path }}/{{ sc_incommon_prefix }}.interm.cer"

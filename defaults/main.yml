@@ -13,8 +13,9 @@ sc_mode:            "0644"
 sc_owner:           "root"
 sc_group:           "root"
 
-sc_local_path:      "{{ inventory_dir | default(playbook_dir) }}"
-sc_local_cert_path: "{{ sc_local_path }}/{{ sc_common_name }}"
+ca_name:            ""
+certs_path:         "default"
+
 sc_deploy_path:     "/etc/ssl/{{ sc_common_name }}"
 sc_deploy_mode:     "0755"
 
