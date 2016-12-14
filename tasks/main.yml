@@ -24,8 +24,6 @@
   become: yes
   when: is_local|bool == false and generate_csr|bool == true
 
-
-
 #
 # Check which local files exist
 #
@@ -81,9 +79,3 @@
 #
 - include: deploy-cert.yml
   when: deploy_cert|bool == true
-
-#
-# Deploy All Hosts
-#
-- include: deploy-all.yml
-  when: deploy_all|bool == true
