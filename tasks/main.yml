@@ -12,9 +12,6 @@
 
 - include: ./set_path.{{ca_name}}.yml
 
-#  - certs_path:         "{{ inventory_dir | default(playbook_dir) }}"
-  sc_local_cert_path:       "{{ certs_path }}/{{ sc_common_name }}"
-
 - name: Ensure OpenSSL is installed
   apt: name=openssl state=present
   when: ansible_os_family is defined and ansible_os_family == "Debian"
@@ -22,7 +19,7 @@
 - name: Ensure sc_deploy_path exists
   file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
   become: yes
-  when: is_local|bool == false and generate_csr|bool == true
+  when: ansible_host != 'localhost' and generate_csr|bool == true
 
 #
 # Check which local files exist
@@ -47,7 +44,7 @@
 - stat: path={{ sc_csr_remote }}
   register: stat_csr_remote
   become: true
-  when: is_local|bool == false and generate_csr|bool == true
+  when: ansible_host != 'localhost' and generate_csr|bool == true
 
 - debug: msg="stat_csr_remote = {{ stat_csr_remote }}"
 - debug: msg="stat_csr_local = {{ stat_csr_local }}"
@@ -67,7 +64,7 @@
 - include: pull-csr.yml
   when: >
     ( generate_csr|bool == true ) or ( pull_csr|bool == true ) and
-    ( is_local|bool == false ) and
+    ( ansible_host != 'localhost' ) and
     ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
 
 #

@@ -13,7 +13,6 @@ generate_csr            set to true to generate a new CSR on a remote machine
 pull_csr                set to true to copy CSR local
 generate_ssc            set to true to create a Self Signed Certificate
 dh_param                set to true to generate a dhparam file
-is_local                set tp true when local, not remote
 
 certs_path              Local path for cert CSR/signed cert storage
 
@@ -33,8 +32,7 @@ sc_domain_comp          Domain Component for the cert, if any
 
 ```YAML
  - hosts: all
-   vars: 
-     is_local: false
+   gather_facts: "{{ansible_host != 'localhost'}}"
    vars: 
      generate_csr: true
      force: true
@@ -47,6 +45,7 @@ sc_domain_comp          Domain Component for the cert, if any
 
 ```YAML
  - hosts: all
+   gather_facts: "{{ansible_host != 'localhost'}}"
    tags: 
      - deploy_cert 
    roles:
