@@ -54,7 +54,7 @@
       openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"
     when: passphrase is defined and not passphrase == ""
 
-  - debug: "msg='openssl_args: {{ openssl_args }}'"
+  - debug: var=openssl_args
 
   - name: Creating CSR and RSA key (remote)
     command: openssl {{ openssl_args }}

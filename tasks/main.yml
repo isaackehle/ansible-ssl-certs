@@ -46,8 +46,8 @@
   become: true
   when: ansible_host != 'localhost' and generate_csr|bool == true
 
-- debug: msg="stat_csr_remote = {{ stat_csr_remote }}"
-- debug: msg="stat_csr_local = {{ stat_csr_local }}"
+- debug: var=stat_csr_remote
+- debug: var=stat_csr_local
 
 - include: generate-csr.yml
   when: >
