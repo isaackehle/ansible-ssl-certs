@@ -1,0 +1,23 @@
+{
+  "name": "ansible-ssl-certs",
+  "version": "0.9.9",
+  "description": "Generate and/or deploy SSL certificate",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pgkehle/ansible-ssl-certs.git"
+  },
+  "author": "Paul Kehle (pgkehle@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pgkehle/ansible-ssl-certs/issues"
+  },
+  "homepage": "https://github.com/pgkehle/ansible-ssl-certs#readme",
+  "main": "tasks/main.yml",
+  "keywords": [
+    "ansible"
+  ]
+}
