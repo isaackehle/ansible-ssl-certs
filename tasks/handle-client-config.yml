@@ -16,12 +16,12 @@
   - name: Uncomment req_extensions
     replace: dest=/etc/ssl/openssl.cnf regexp='# req_extensions = v3_req' replace='req_extensions = v3_req' backup=yes
     become: true
-    when: client_config|bool == false
+    when: do_client_config|bool == false
 
   - name: Updating Client Config
     replace: dest=/etc/ssl/openssl.cnf regexp='# extendedKeyUsage = critical,timeStamping$' replace='extendedKeyUsage = clientAuth' backup=yes
     become: true
-    when: client_config|bool == false
+    when: do_client_config|bool == false
 
   - name: copy sample openssl.cnf file
     become: true
@@ -29,6 +29,6 @@
       module: copy
       dest: /etc/ssl/openssl.cnf
       src: ../templates/openssl.cnf
-    when: client_config|bool == false
+    when: do_client_config|bool == false
 
 

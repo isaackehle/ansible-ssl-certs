@@ -19,7 +19,7 @@
 - name: Ensure sc_deploy_path exists
   file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
   become: yes
-  when: ansible_host != 'localhost' and generate_csr|bool == true
+  when: ansible_host != 'localhost' and do_csr_create|bool == true
 
 #
 # Check which local files exist
@@ -36,7 +36,7 @@
 # Enable client configuration for OpenSSL, if requested
 #
 - include: handle-client-config.yml
-  when: client_config|bool == true # and generate_csr|bool == true
+  when: do_client_config|bool == true # and do_csr_create|bool == true
 
 #
 # Create a CSR on the server if it does not exist, and user wants to generate one
@@ -44,14 +44,14 @@
 - stat: path={{ sc_csr_remote }}
   register: stat_csr_remote
   become: true
-  when: ansible_host != 'localhost' and generate_csr|bool == true
+  when: ansible_host != 'localhost' and do_csr_create|bool == true
 
 - debug: var=stat_csr_remote
 - debug: var=stat_csr_local
 
 - include: generate-csr.yml
   when: >
-    ( generate_csr|bool == true ) and
+    ( do_csr_create|bool == true ) and
     ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
       not stat_csr_remote.stat.exists or
       not stat_csr_local.stat.exists or
@@ -63,7 +63,7 @@
 
 - include: pull-csr.yml
   when: >
-    ( generate_csr|bool == true ) or ( pull_csr|bool == true ) and
+    ( do_csr_create|bool == true ) or ( do_csr_pull|bool == true ) and
     ( ansible_host != 'localhost' ) and
     ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
 
@@ -75,4 +75,4 @@
 # Deploy
 #
 - include: deploy-cert.yml
-  when: deploy_cert|bool == true
+  when: do_deploy|bool == true
