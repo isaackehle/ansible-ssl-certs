@@ -31,28 +31,26 @@ sc_domain_comp          Domain Component for the cert, if any
 ### Example to generate a Certificate Signing Request 
 
 ```YAML
- - hosts: all
-   gather_facts: "{{ansible_host != 'localhost'}}"
-   vars: 
-     do_csr_create: true
-     force: true
-     do_client_config: true
-   roles:
-     - { role: pgkehle.ssl-certs }
+- hosts: all
+  gather_facts: "{{ansible_host != 'localhost'}}"
+  vars: 
+    do_csr_create: true
+    force: true
+    do_client_config: true
+  roles:
+    - { role: pgkehle.ssl-certs }
 ```
 
 ## Example to move a certificate into place 
 
 ```YAML
- - hosts: all
-   gather_facts: "{{ansible_host != 'localhost'}}"
-   vars: 
-     do_deploy: true 
-   roles:
-     - pgkehle.ssl-certs
+- hosts: all
+  gather_facts: "{{ansible_host != 'localhost'}}"
+  vars: 
+    do_deploy: true 
+  roles:
+    - pgkehle.ssl-certs
 ```
-
-
 
 ## License
 
