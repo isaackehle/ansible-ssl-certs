@@ -54,7 +54,7 @@
       openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"
     when: passphrase is defined and not passphrase == ""
 
-  - debug: var=openssl_args
+#  - debug: var=openssl_args
 
   - name: Creating CSR and RSA key (remote)
     command: openssl {{ openssl_args }}
@@ -62,6 +62,7 @@
     when: ansible_host != 'localhost'
 
   - name: Creating CSR and RSA key (local)
-    local_action: command openssl {{ openssl_args }}
+    shell: openssl {{ openssl_args }}
+    connection: local
     become: false
     when: ansible_host == 'localhost'

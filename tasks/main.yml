@@ -1,11 +1,13 @@
 ---
 - fail: msg="Please ensure '{{ item }}' is set"
   when:
-    - not {{ item }} is defined or {{ item }} == ""
+    - not item is defined or item == ""
   with_items:
     - certs_path
+    - flags
 
-- debug: var=ca_name
+#- debug: var=ca_name
+#- debug: var=flags
 
 - set_fact:
     sc_local_cert_path: "{{ certs_path }}/{{ sc_common_name }}"
@@ -19,16 +21,18 @@
 - name: Ensure sc_deploy_path exists
   file: path={{ sc_deploy_path }} state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
   become: yes
-  when: ansible_host != 'localhost' and do_csr_create|bool == true
+  when: ((['csr_create', 'deploy'] | intersect(flags)) | length > 0) and (ansible_host != 'localhost')
 
 #
 # Check which local files exist
 #
-- local_action: stat path={{ sc_csr_local }}
+- stat: path={{ sc_csr_local }}
+  connection: local
   register: stat_csr_local
   become: false
 
-- local_action: stat path={{ sc_key_local }}
+- stat: path={{ sc_key_local }}
+  connection: local
   register: stat_key_local
   become: false
 
@@ -36,7 +40,7 @@
 # Enable client configuration for OpenSSL, if requested
 #
 - include: handle-client-config.yml
-  when: do_client_config|bool == true # and do_csr_create|bool == true
+  when: ((['client_config'] | intersect(flags)) | length > 0)
 
 #
 # Create a CSR on the server if it does not exist, and user wants to generate one
@@ -44,18 +48,19 @@
 - stat: path={{ sc_csr_remote }}
   register: stat_csr_remote
   become: true
-  when: ansible_host != 'localhost' and do_csr_create|bool == true
+  when: ((['csr_create'] | intersect(flags)) | length > 0) and ansible_host != 'localhost'
 
-- debug: var=stat_csr_remote
-- debug: var=stat_csr_local
+#- debug: var=stat_csr_remote
+#- debug: var=stat_csr_local
 
 - include: generate-csr.yml
   when: >
-    ( do_csr_create|bool == true ) and
+    ((['csr_create', 'deploy'] | intersect(flags)) | length > 0) and
     ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
       not stat_csr_remote.stat.exists or
       not stat_csr_local.stat.exists or
-      force|bool == true )
+      ((['force'] | intersect(flags)) | length > 0)
+    )
 
 #
 # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
@@ -63,7 +68,7 @@
 
 - include: pull-csr.yml
   when: >
-    ( do_csr_create|bool == true ) or ( do_csr_pull|bool == true ) and
+    ((['csr_create', 'csr_pull'] | intersect(flags)) | length > 0) and
     ( ansible_host != 'localhost' ) and
     ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
 
@@ -74,5 +79,5 @@
 #
 # Deploy
 #
-- include: deploy-cert.yml
-  when: do_deploy|bool == true
+- include: deploy.yml
+  when: ((['deploy'] | intersect(flags)) | length > 0)

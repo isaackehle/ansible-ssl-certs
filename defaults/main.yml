@@ -1,4 +1,8 @@
 ---
+
+flags:
+  - none
+
 sc_country:         ""
 sc_locality:        ""
 sc_state:           ""
@@ -36,11 +40,3 @@ sc_dhparam_fn:      "{{ sc_deploy_path }}/dhparam.pem"
 key_size:           "4096"
 dhparam_size:       "2048"
 sc_days:            "365"
-
-do_client_config:   false
-do_csr_create:      false
-do_csr_pull:        false
-do_ssc_generate:    false
-do_deploy:          false
-do_dh_param_create: false
-force:              false

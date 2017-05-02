@@ -7,12 +7,14 @@ Available on Ansible Galaxy: [pgkehle.ssl-certs](https://galaxy.ansible.com/pgke
 # Input and Variables
 
 ```
-force                   set to true to force any of the previous actions
-do_client_config        set to true to ensure the proper SSL settings for generating a client certificate
-do_csr_create           set to true to generate a new CSR on a remote machine
-do_csr_pull             set to true to copy CSR local
-do_ssc_generate         set to true to create a Self Signed Certificate
-dh_param                set to true to generate a dhparam file
+flags:
+    force               set to true to force any of the previous actions
+    client_config       set to true to ensure the proper SSL settings for generating a client certificate
+    csr_create          set to true to generate a new CSR on a remote machine
+    csr_pull            set to true to copy CSR local
+    deploy              set to true to deploy certificates
+    ssc_generate        set to true to create a Self Signed Certificate
+    dh_param            set to true to generate a dhparam file
 
 certs_path              Local path for cert CSR/signed cert storage
 
@@ -34,9 +36,10 @@ sc_domain_comp          Domain Component for the cert, if any
 - hosts: all
   gather_facts: "{{ansible_host != 'localhost'}}"
   vars: 
-    do_csr_create: true
-    force: true
-    do_client_config: true
+    flags:
+      - client_config
+      - force
+      - csr_create
   roles:
     - { role: pgkehle.ssl-certs }
 ```
@@ -47,7 +50,8 @@ sc_domain_comp          Domain Component for the cert, if any
 - hosts: all
   gather_facts: "{{ansible_host != 'localhost'}}"
   vars: 
-    do_deploy: true 
+    flags:
+      - deploy
   roles:
     - pgkehle.ssl-certs
 ```
@@ -60,3 +64,10 @@ MIT
 
 Paul Kehle  
 @pgkehle ([twitter](https://twitter.com/pgkehle), [github](https://github.com/pgkehle), [linkedin](https://www.linkedin.com/in/pgkehle))
+
+## For local development testing
+
+```bash
+rsync -av --delete ~/code/ansible-ssl-certs/* ~/.ansible/roles/pgkehle.ssl-certs
+```
+
