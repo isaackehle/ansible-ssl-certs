@@ -70,7 +70,10 @@
   when: >
     ((['csr_create', 'csr_pull'] | intersect(flags)) | length > 0) and
     ( ansible_host != 'localhost' ) and
-    ( not stat_csr_local.stat.exists or not stat_key_local.stat.exists or force|bool == true)
+    ( not stat_csr_local.stat.exists or
+      not stat_key_local.stat.exists or
+      (['force'] | intersect(flags)) | length > 0
+    )
 
 #
 # This section tests whether the user wants to generate the Self-Signed Certificate
