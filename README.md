@@ -1,4 +1,4 @@
-# Ansible: ssl-certs
+# Ansible Role - ssl-certs
 
 Generate and/or deploy SSL certificate
 

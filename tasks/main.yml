@@ -12,7 +12,7 @@
 - set_fact:
     sc_local_cert_path: "{{ certs_path }}/{{ sc_common_name }}"
 
-- include: ./set_path.{{ca_name}}.yml
+- include_tasks: ./set_path.{{ca_name}}.yml
 
 - name: Ensure OpenSSL is installed
   apt: name=openssl state=present
@@ -39,7 +39,7 @@
 #
 # Enable client configuration for OpenSSL, if requested
 #
-- include: handle-client-config.yml
+- include_tasks: handle-client-config.yml
   when: ((['client_config'] | intersect(flags)) | length > 0)
 
 #
@@ -53,7 +53,7 @@
 #- debug: var=stat_csr_remote
 #- debug: var=stat_csr_local
 
-- include: generate-csr.yml
+- include_tasks: generate-csr.yml
   when: >
     ((['csr_create', 'deploy'] | intersect(flags)) | length > 0) and
     ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
@@ -66,7 +66,7 @@
 # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
 #
 
-- include: pull-csr.yml
+- include_tasks: pull-csr.yml
   when: >
     ((['csr_create', 'csr_pull'] | intersect(flags)) | length > 0) and
     ( ansible_host != 'localhost' ) and
@@ -82,5 +82,5 @@
 #
 # Deploy
 #
-- include: deploy.yml
+- include_tasks: deploy.yml
   when: ((['deploy'] | intersect(flags)) | length > 0)
