@@ -31,9 +31,3 @@
     - { src: "{{ sc_cert_local }}", dest: "{{ sc_cert_remote }}" }
     - { src: "{{ sc_interm_local }}", dest: "{{ sc_interm_remote }}" }
     - { src: "{{ sc_chain_local }}", dest: "{{ sc_chain_remote }}" }
-#    - { src: "{{ sc_csr_local }}", dest: "{{ sc_csr_remote }}" }
-
-#  - name: Create chain file
-#    command: cat {{ sc_key_remote }} {{ sc_cert_remote }} > {{ sc_chain_remote }}
-#    become: true
-#

@@ -6,13 +6,29 @@
     - certs_path
     - flags
 
-#- debug: var=ca_name
-#- debug: var=flags
+- set_fact:
+    sc_deploy_path:     "/etc/ssl/{{ sc_common_name }}/{{ cert_use }}"
+    sc_local_cert_path: "{{ certs_path }}/{{ sc_common_name }}/{{ cert_use }}"
 
 - set_fact:
-    sc_local_cert_path: "{{ certs_path }}/{{ sc_common_name }}"
+    sc_csr_remote:      "{{ sc_deploy_path }}/{{ sc_common_name }}.csr"
+    sc_key_remote:      "{{ sc_deploy_path }}/{{ sc_common_name }}.key"
+    sc_cert_remote:     "{{ sc_deploy_path }}/{{ sc_common_name }}.cert.pem"
+    sc_chain_remote:    "{{ sc_deploy_path }}/{{ sc_common_name }}.chain.pem"
+    sc_interm_remote:   "{{ sc_deploy_path }}/{{ sc_common_name }}.intermediate.pem"
 
-- include_tasks: ./set_path.{{ca_name}}.yml
+- set_fact:
+    sc_csr_local:       "{{ sc_local_cert_path }}/{{ sc_common_name }}.csr"
+    sc_key_local:       "{{ sc_local_cert_path }}/{{ sc_common_name }}.key"
+    sc_cert_local:      "{{ sc_local_cert_path }}/{{ sc_common_name }}.cert.pem"
+    sc_chain_local:     "{{ sc_local_cert_path }}/{{ sc_common_name }}.chain.pem"
+    sc_interm_local:    "{{ sc_local_cert_path }}/{{ sc_common_name }}.intermediate.pem"
+
+- set_fact:
+    sc_dhparam_fn:      "{{ sc_deploy_path }}/dhparam.pem"
+
+- name: Call to set the path
+  include_tasks: ./set_path.{{ca_name}}.yml
 
 - name: Ensure OpenSSL is installed
   apt: name=openssl state=present
@@ -26,15 +42,24 @@
 #
 # Check which local files exist
 #
-- stat: path={{ sc_csr_local }}
+- name: Get stats for {{ sc_csr_local }}
+  stat: path={{ sc_csr_local }}
   connection: local
   register: stat_csr_local
   become: false
 
-- stat: path={{ sc_key_local }}
+- name: Get stats for {{ sc_key_local }}
+  stat: path={{ sc_key_local }}
   connection: local
   register: stat_key_local
   become: false
+
+- name: Get stats for {{ sc_csr_remote }}
+  stat: path={{ sc_csr_remote }}
+  register: stat_csr_remote
+  become: true
+  when: ansible_host != 'localhost'
+
 
 #
 # Enable client configuration for OpenSSL, if requested
@@ -45,35 +70,44 @@
 #
 # Create a CSR on the server if it does not exist, and user wants to generate one
 #
-- stat: path={{ sc_csr_remote }}
-  register: stat_csr_remote
-  become: true
-  when: ((['csr_create'] | intersect(flags)) | length > 0) and ansible_host != 'localhost'
 
-#- debug: var=stat_csr_remote
-#- debug: var=stat_csr_local
+- set_fact:
+    remote_exists: "{{ stat_csr_remote.stat.exists }}"
+    local_exists: "{{ stat_csr_local.stat.exists }}"
 
-- include_tasks: generate-csr.yml
+- set_fact:
+    need_generate: "{{ remote_exists == false or force == true or ['force'] | intersect(flags) | length > 0 }}"
+    need_pull: "{{ local_exists == false or force == true or ['force'] | intersect(flags) | length > 0 }}"
+
+- debug: var={{ item }}
+  with_items:
+    - stat_csr_remote
+    - stat_csr_local
+    - ca_name
+    - flags
+    - force
+    - remote_exists
+    - local_exists
+    - need_generate
+    - need_pull
+
+- name: Generate CSR
+  include_tasks: generate-csr.yml
   when: >
     ((['csr_create', 'deploy'] | intersect(flags)) | length > 0) and
-    ( stat_csr_remote is defined and stat_csr_remote.stat is defined and
-      not stat_csr_remote.stat.exists or
-      not stat_csr_local.stat.exists or
-      ((['force'] | intersect(flags)) | length > 0)
-    )
+    (stat_csr_remote is defined and stat_csr_remote.stat is defined) and
+    (need_generate == true)
 
 #
 # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.
 #
 
-- include_tasks: pull-csr.yml
+- name: Pull CSR
+  include_tasks: pull-csr.yml
   when: >
     ((['csr_create', 'csr_pull'] | intersect(flags)) | length > 0) and
     ( ansible_host != 'localhost' ) and
-    ( not stat_csr_local.stat.exists or
-      not stat_key_local.stat.exists or
-      (['force'] | intersect(flags)) | length > 0
-    )
+    ( need_pull == true )
 
 #
 # This section tests whether the user wants to generate the Self-Signed Certificate
@@ -82,5 +116,6 @@
 #
 # Deploy
 #
-- include_tasks: deploy.yml
+- name: Deploy Certificates
+  include_tasks: deploy.yml
   when: ((['deploy'] | intersect(flags)) | length > 0)
