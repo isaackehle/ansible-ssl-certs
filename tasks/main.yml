@@ -42,19 +42,19 @@
 #
 # Check which local files exist
 #
-- name: Get stats for {{ sc_csr_local }}
+- name: Get stats for sc_csr_local -- {{ sc_csr_local }}
   stat: path={{ sc_csr_local }}
   connection: local
   register: stat_csr_local
   become: false
 
-- name: Get stats for {{ sc_key_local }}
+- name: Get stats for sc_key_local -- {{ sc_key_local }}
   stat: path={{ sc_key_local }}
   connection: local
   register: stat_key_local
   become: false
 
-- name: Get stats for {{ sc_csr_remote }}
+- name: Get stats for sc_csr_remote -- {{ sc_csr_remote }}
   stat: path={{ sc_csr_remote }}
   register: stat_csr_remote
   become: true
@@ -72,12 +72,19 @@
 #
 
 - set_fact:
-    remote_exists: "{{ stat_csr_remote.stat.exists }}"
-    local_exists: "{{ stat_csr_local.stat.exists }}"
+    need_remote: "{{ stat_csr_remote.stat.exists == false }}"
+  when: ansible_host != 'localhost'
 
 - set_fact:
-    need_generate: "{{ remote_exists == false or force == true or ['force'] | intersect(flags) | length > 0 }}"
-    need_pull: "{{ local_exists == false or force == true or ['force'] | intersect(flags) | length > 0 }}"
+    need_remote: false
+  when: ansible_host == 'localhost'
+
+- set_fact:
+    need_local: "{{ stat_csr_local.stat.exists == false }}"
+
+- set_fact:
+    need_generate: "{{ need_remote == true or force == true or ['force'] | intersect(flags) | length > 0 }}"
+    need_pull: "{{ need_local == true or force == true or ['force'] | intersect(flags) | length > 0 }}"
 
 - debug: var={{ item }}
   with_items:
@@ -86,17 +93,16 @@
     - ca_name
     - flags
     - force
-    - remote_exists
-    - local_exists
+    - need_remote
+    - need_local
     - need_generate
     - need_pull
 
 - name: Generate CSR
   include_tasks: generate-csr.yml
-  when: >
-    ((['csr_create', 'deploy'] | intersect(flags)) | length > 0) and
-    (stat_csr_remote is defined and stat_csr_remote.stat is defined) and
-    (need_generate == true)
+  when:
+    - ((['csr_create', 'deploy'] | intersect(flags)) | length > 0)
+    - need_generate == true
 
 #
 # Copy the CSR to local private storage if it does not exist.  This will be supplied to the CA.

@@ -61,6 +61,11 @@
     become: true
     when: ansible_host != 'localhost'
 
+  - name: Ensure local path exists
+    file: path="{{ sc_local_cert_path }}" state=directory
+    connection: local
+    when: ansible_host == 'localhost'
+
   - name: Creating CSR and RSA key (local)
     shell: openssl {{ openssl_args }}
     connection: local
