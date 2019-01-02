@@ -3,7 +3,7 @@
     file: path="{{ sc_local_cert_path }}" state=directory
     connection: local
 
-  - name: Copy CSR/Key to local private directory
+  - name: Copy keys and certs to local private directory
     fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
     become: true
     with_items:
