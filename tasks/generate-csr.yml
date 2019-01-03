@@ -2,39 +2,39 @@
 
   - set_fact: subj_list="[]"
 
-  - set_fact: subj_list={{ subj_list }} + ['/C={{ sc_country }}']
-    when: sc_country is defined and not sc_country == ""
+  - set_fact: subj_list={{ subj_list }} + ['/C={{ cert_config.country }}']
+    when: cert_config.country is defined and not cert_config.country == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/ST={{ sc_state }}']
-    when: sc_state is defined and not sc_state == ""
+  - set_fact: subj_list={{ subj_list }} + ['/ST={{ cert_config.state }}']
+    when: cert_config.state is defined and not cert_config.state == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/L={{ sc_locality }}']
-    when: sc_locality is defined and not sc_locality == ""
+  - set_fact: subj_list={{ subj_list }} + ['/L={{ cert_config.locality }}']
+    when: cert_config.locality is defined and not cert_config.locality == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/O={{ sc_organization }}']
-    when: sc_organization is defined and not sc_organization == ""
+  - set_fact: subj_list={{ subj_list }} + ['/O={{ cert_config.organization }}']
+    when: cert_config.organization is defined and not cert_config.organization == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/OU={{ sc_ou }}']
-    when: sc_ou is defined and not sc_ou == ""
+  - set_fact: subj_list={{ subj_list }} + ['/OU={{ cert_config.ou }}']
+    when: cert_config.ou is defined and not cert_config.ou == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/CN={{ sc_common_name }}']
-    when: sc_common_name is defined and not sc_common_name == ""
+  - set_fact: subj_list={{ subj_list }} + ['/CN={{ cert_config.common_name }}']
+    when: cert_config.common_name is defined and not cert_config.common_name == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/EMAILADDRESS={{ sc_email }}']
-    when: sc_email is defined and not sc_email == ""
+  - set_fact: subj_list={{ subj_list }} + ['/EMAILADDRESS={{ cert_config.email }}']
+    when: cert_config.email is defined and not cert_config.email == ""
 
-  - set_fact: subj_list={{ subj_list }} + ['/DC={{ sc_domain_comp }}']
-    when: sc_domain_comp is defined and not sc_domain_comp == ""
+  - set_fact: subj_list={{ subj_list }} + ['/DC={{ cert_config.domain_comp }}']
+    when: cert_config.domain_comp is defined and not cert_config.domain_comp == ""
 
 #  - debug: "msg='subj_list: {{ subj_list }}'"
 
   - set_fact: sc_subject={{ subj_list | join('') }}
-  - set_fact: openssl_args=req -nodes -sha256 -newkey rsa:{{ key_size }} -subj \"{{ sc_subject }}\"
+  - set_fact: openssl_args=req -nodes -sha256 -newkey rsa:{{ keygen.bits }} -subj \"{{ sc_subject }}\"
 
-  - set_fact: openssl_args={{ openssl_args }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }}
+  - set_fact: openssl_args={{ openssl_args }} -keyout {{ cert_path.key.remote }} -out {{ cert_path.csr.remote }}
     when: ansible_host != 'localhost'
 
-  - set_fact: openssl_args={{ openssl_args }} -keyout {{ sc_key_local }} -out {{ sc_csr_local }}
+  - set_fact: openssl_args={{ openssl_args }} -keyout {{ cert_path.key.local }} -out {{ cert_path.csr.local }}
     when: ansible_host == 'localhost'
 
   - set_fact: openssl_args={{ openssl_args }} -passout pass:'{{ passphrase }}'
@@ -48,7 +48,7 @@
     when: ansible_host != 'localhost'
 
   - name: Ensure local path exists
-    file: path="{{ sc_local_cert_path }}" state=directory
+    file: path="{{ base_paths.local }}" state=directory
     connection: local
     when: ansible_host == 'localhost'
 

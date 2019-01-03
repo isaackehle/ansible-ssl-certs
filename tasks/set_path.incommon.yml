@@ -1,7 +1,0 @@
----
-- set_fact:
-    sc_incommon_prefix:       "{{ sc_common_name | regex_replace( \"\\.\", \"_\" ) }}"
-
-- set_fact:
-    sc_cert_local:            "{{ sc_local_cert_path }}/{{ sc_incommon_prefix }}_cert.cer"
-    sc_interm_local:          "{{ sc_local_cert_path }}/{{ sc_incommon_prefix }}_interm.cer"

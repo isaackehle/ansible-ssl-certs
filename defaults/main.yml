@@ -5,26 +5,25 @@ flags:
 
 force:              false
 
-sc_country:         ""
-sc_locality:        ""
-sc_state:           ""
-sc_organization:    ""
-sc_ou:              ""
-sc_common_name:     ""
-sc_domain_comp:     ""
-sc_email:           ""
-sc_subject:         ""
+cert_config:
+  country:          ""
+  locality:         ""
+  state:            ""
+  organization:     ""
+  ou:               ""
+  cn:               ""
+  dc:               ""
+  email:            ""
+  subject:          ""
+  days:             365
 
-sc_mode:            "0644"
-sc_owner:           "root"
-sc_group:           "root"
+keygen:
+  bits:             4096
+  encryption:       rsa
+  dhparam_size:     2048
 
-ca_name:            ""
-certs_path:         "default"
-cert_use:           ""
+perms:
+  owner:            root
+  group:            root
+  mode:             0755
 
-sc_deploy_mode:     "0755"
-
-key_size:           "4096"
-dhparam_size:       "2048"
-sc_days:            "365"
