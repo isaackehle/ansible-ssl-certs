@@ -2,56 +2,42 @@
 
   - set_fact: subj_list="[]"
 
-  - set_fact: 
-      subj_list: "{{ subj_list }} + ['/C={{ sc_country }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/C={{ sc_country }}']
     when: sc_country is defined and not sc_country == ""
 
-  - set_fact: 
-      subj_list: "{{ subj_list }} + ['/ST={{ sc_state }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/ST={{ sc_state }}']
     when: sc_state is defined and not sc_state == ""
 
-  - set_fact: 
-      subj_list: "{{ subj_list }} + ['/L={{ sc_locality }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/L={{ sc_locality }}']
     when: sc_locality is defined and not sc_locality == ""
 
-  - set_fact: 
-      subj_list: "{{ subj_list }} + ['/O={{ sc_organization }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/O={{ sc_organization }}']
     when: sc_organization is defined and not sc_organization == ""
 
-  - set_fact: 
-      subj_list: "{{ subj_list }} + ['/OU={{ sc_ou }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/OU={{ sc_ou }}']
     when: sc_ou is defined and not sc_ou == ""
 
-  - set_fact: 
-      subj_list: "{{ subj_list }} + ['/CN={{ sc_common_name }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/CN={{ sc_common_name }}']
     when: sc_common_name is defined and not sc_common_name == ""
 
-  - set_fact:
-      subj_list: "{{ subj_list }} + ['/EMAILADDRESS={{ sc_email }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/EMAILADDRESS={{ sc_email }}']
     when: sc_email is defined and not sc_email == ""
 
-  - set_fact:
-      subj_list: "{{ subj_list }} + ['/DC={{ sc_domain_comp }}']"
+  - set_fact: subj_list={{ subj_list }} + ['/DC={{ sc_domain_comp }}']
     when: sc_domain_comp is defined and not sc_domain_comp == ""
 
 #  - debug: "msg='subj_list: {{ subj_list }}'"
 
-  - set_fact:
-      sc_subject: "{{ subj_list | join('') }}"
+  - set_fact: sc_subject={{ subj_list | join('') }}
+  - set_fact: openssl_args=req -nodes -sha256 -newkey rsa:{{ key_size }} -subj \"{{ sc_subject }}\"
 
-  - set_fact:
-      openssl_args: "req -nodes -sha256 -newkey rsa:{{ key_size }} -subj \"{{ sc_subject }}\""
-
-  - set_fact:
-      openssl_args: "{{ openssl_args }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }}"
+  - set_fact: openssl_args={{ openssl_args }} -keyout {{ sc_key_remote }} -out {{ sc_csr_remote }}
     when: ansible_host != 'localhost'
 
-  - set_fact:
-      openssl_args: "{{ openssl_args }} -keyout {{ sc_key_local }} -out {{ sc_csr_local }}"
+  - set_fact: openssl_args={{ openssl_args }} -keyout {{ sc_key_local }} -out {{ sc_csr_local }}
     when: ansible_host == 'localhost'
 
-  - set_fact:
-      openssl_args: "{{ openssl_args }} -passout pass:'{{ passphrase }}'"
+  - set_fact: openssl_args={{ openssl_args }} -passout pass:'{{ passphrase }}'
     when: passphrase is defined and not passphrase == ""
 
 #  - debug: var=openssl_args
