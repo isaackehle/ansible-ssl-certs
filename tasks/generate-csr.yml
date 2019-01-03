@@ -1,59 +1,59 @@
 ---
 
-  - set_fact: subj_list="[]"
+# https://docs.mongodb.com/manual/tutorial/configure-x509-client-authentication/
+# http://www.mad-hacking.net/documentation/linux/security/ssl-tls/creating-csr.xml
+# https://superuser.com/questions/947061/openssl-unable-to-find-distinguished-name-in-config#947080
+# keyUsage = keyEncipherment, dataEncipherment
 
-  - set_fact: subj_list={{ subj_list }} + ['/C={{ cert_config.country }}']
-    when: cert_config.country is defined and not cert_config.country == ""
+- name: Set filenames for remote
+  set_fact: 
+    keyout_file: '{{ cert_path.key.remote }}'
+    out_file: '{{ cert_path.csr.remote }}'
+  when: ansible_host != 'localhost'
 
-  - set_fact: subj_list={{ subj_list }} + ['/ST={{ cert_config.state }}']
-    when: cert_config.state is defined and not cert_config.state == ""
+- name: Set filenames for local
+  set_fact: 
+    keyout_file: '{{ cert_path.key.local }}'
+    out_file: '{{ cert_path.csr.local }}'
+  when: ansible_host == 'localhost'
 
-  - set_fact: subj_list={{ subj_list }} + ['/L={{ cert_config.locality }}']
-    when: cert_config.locality is defined and not cert_config.locality == ""
+- name: Save the temp config file
+  template: 
+    src: ../templates/openssl.conf.j2
+    dest: /tmp/openssl.conf
+  run_once: true
 
-  - set_fact: subj_list={{ subj_list }} + ['/O={{ cert_config.organization }}']
-    when: cert_config.organization is defined and not cert_config.organization == ""
+- name: Set args
+  set_fact: 
+    openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ out_file }} -keyout {{ keyout_file }}
 
-  - set_fact: subj_list={{ subj_list }} + ['/OU={{ cert_config.ou }}']
-    when: cert_config.ou is defined and not cert_config.ou == ""
+- name: Creating CSR and RSA key (remote)
+  command: openssl {{ openssl_args }}
+  become: true
+  when: ansible_host != 'localhost'
 
-  - set_fact: subj_list={{ subj_list }} + ['/CN={{ cert_config.common_name }}']
-    when: cert_config.common_name is defined and not cert_config.common_name == ""
+- name: Set Permissions
+  file: 
+    dest: '{{ item }}'
+    state: touch
+    owner: '{{ perms.owner }}' 
+    group: '{{ perms.group }}' 
+    mode: '{{ perms.mode }}'
+  become: true
+  with_items:
+    - "{{ cert_path.csr.remote }}"
+    - "{{ cert_path.key.remote }}"
+  when: ansible_host != 'localhost'
 
-  - set_fact: subj_list={{ subj_list }} + ['/EMAILADDRESS={{ cert_config.email }}']
-    when: cert_config.email is defined and not cert_config.email == ""
+- name: Ensure local path exists
+  file: 
+    path: '{{ base_paths.local }}'
+    state: directory
+  connection: local
+  when: ansible_host == 'localhost'
 
-  - set_fact: subj_list={{ subj_list }} + ['/DC={{ cert_config.domain_comp }}']
-    when: cert_config.domain_comp is defined and not cert_config.domain_comp == ""
-
-#  - debug: "msg='subj_list: {{ subj_list }}'"
-
-  - set_fact: sc_subject={{ subj_list | join('') }}
-  - set_fact: openssl_args=req -nodes -sha256 -newkey rsa:{{ keygen.bits }} -subj \"{{ sc_subject }}\"
-
-  - set_fact: openssl_args={{ openssl_args }} -keyout {{ cert_path.key.remote }} -out {{ cert_path.csr.remote }}
-    when: ansible_host != 'localhost'
-
-  - set_fact: openssl_args={{ openssl_args }} -keyout {{ cert_path.key.local }} -out {{ cert_path.csr.local }}
-    when: ansible_host == 'localhost'
-
-  - set_fact: openssl_args={{ openssl_args }} -passout pass:'{{ passphrase }}'
-    when: passphrase is defined and not passphrase == ""
-
-#  - debug: var=openssl_args
-
-  - name: Creating CSR and RSA key (remote)
-    command: openssl {{ openssl_args }}
-    become: true
-    when: ansible_host != 'localhost'
-
-  - name: Ensure local path exists
-    file: path="{{ base_paths.local }}" state=directory
-    connection: local
-    when: ansible_host == 'localhost'
-
-  - name: Creating CSR and RSA key (local)
-    shell: openssl {{ openssl_args }}
-    connection: local
-    become: false
-    when: ansible_host == 'localhost'
+- name: Creating CSR and RSA key (local)
+  shell: openssl {{ openssl_args }}
+  connection: local
+  become: false
+  when: ansible_host == 'localhost'

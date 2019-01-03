@@ -17,6 +17,8 @@ cert_config:
   subject:          ""
   days:             365
 
+passphrase:         ""
+
 keygen:
   bits:             4096
   encryption:       rsa
@@ -27,3 +29,5 @@ perms:
   group:            root
   mode:             0755
 
+keyUsage:           'digitalSignature, nonRepudiation, keyEncipherment'
+extendedKeyUsage:   null

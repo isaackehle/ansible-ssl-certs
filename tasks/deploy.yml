@@ -1,12 +1,14 @@
 ---
 # This deploys the CA-signed cert from the local host to the remote
 
-- name: Ensure remote path exists
-  file: path="{{ base_paths.remote }}" state=directory owner={{ perms.owner }} group={{ perms.group }} mode={{ perms.mode }}
-
 - name: Copy certs that are to be deployed
 #    debug: msg="item={{ item }}"
-  copy: src={{ item.src }} dest={{ item.dest }} owner={{ perms.owner }} group={{ perms.group }} mode={{ perms.mode }}
+  copy: 
+    src: "{{ item.src }}" 
+    dest: "{{ item.dest }}" 
+    owner: "{{ perms.owner }}" 
+    group: "{{ perms.group }}" 
+    mode: "{{ perms.mode }}"
   become: true
   with_items:
     - { src: "{{ cert_path.cert.local }}", dest: "{{ cert_path.cert.remote }}" }
