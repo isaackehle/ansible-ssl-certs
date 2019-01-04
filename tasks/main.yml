@@ -1,5 +1,5 @@
 ---
-- name: Test Required Items
+- name: Ensure Required Items
   fail: 
     msg: "Please ensure '{{ item }}' is set"
   when:
