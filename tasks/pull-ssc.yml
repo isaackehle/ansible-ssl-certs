@@ -11,6 +11,7 @@
     synchronize:
       src: '{{ item.src }}'
       dest: '{{ item.dest }}'
+      mode: pull
     become: true
     with_items:
       - { src: "{{ cert_path.cert.remote }}", dest: "{{ cert_path.cert.local }}" }

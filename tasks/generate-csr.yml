@@ -4,13 +4,13 @@
   set_fact: 
     keyout_file: '{{ cert_path.key.remote }}'
     out_file: '{{ cert_path.csr.remote }}'
-  when: ansible_host != 'localhost'
+  when: inventory_hostname != 'localhost'
 
 - name: Set filenames for local
   set_fact: 
     keyout_file: '{{ cert_path.key.local }}'
     out_file: '{{ cert_path.csr.local }}'
-  when: ansible_host == 'localhost'
+  when: inventory_hostname == 'localhost'
 
 - name: Save the temp config file
   template: 
@@ -24,7 +24,7 @@
 - name: Creating CSR and RSA key (remote)
   command: openssl {{ openssl_args }}
   become: true
-  when: ansible_host != 'localhost'
+  when: inventory_hostname != 'localhost'
 
 - name: Set Permissions
   file: 
@@ -37,17 +37,17 @@
   with_items:
     - "{{ cert_path.csr.remote }}"
     - "{{ cert_path.key.remote }}"
-  when: ansible_host != 'localhost'
+  when: inventory_hostname != 'localhost'
 
 - name: Ensure local path exists
   file: 
     path: '{{ base_paths.local }}'
     state: directory
   connection: local
-  when: ansible_host == 'localhost'
+  when: inventory_hostname == 'localhost'
 
 - name: Creating CSR and RSA key (local)
   shell: openssl {{ openssl_args }}
   connection: local
   become: false
-  when: ansible_host == 'localhost'
+  when: inventory_hostname == 'localhost'

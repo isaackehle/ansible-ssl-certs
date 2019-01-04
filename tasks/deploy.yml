@@ -2,7 +2,6 @@
 # This deploys the CA-signed cert from the local host to the remote
 
 - name: Copy certs that are to be deployed
-#    debug: msg="item={{ item }}"
   copy: 
     src: "{{ item.src }}" 
     dest: "{{ item.dest }}" 
