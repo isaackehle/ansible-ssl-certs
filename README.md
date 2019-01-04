@@ -34,7 +34,7 @@ cert_config:
 
 ```yaml
 - hosts: all
-  gather_facts: "{{ansible_host != 'localhost'}}"
+  gather_facts: "{{ ansible_host != 'localhost' }}"
   vars:
     flags:
       - client_config
@@ -48,7 +48,7 @@ cert_config:
 
 ```yaml
 - hosts: all
-  gather_facts: "{{ansible_host != 'localhost'}}"
+  gather_facts: "{{ ansible_host != 'localhost' }}"
   vars:
     flags:
       - deploy
