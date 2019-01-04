@@ -10,4 +10,8 @@
      creates={{ cert_path.cert.remote }}
 
   - name: Self-signed SSL certificate file ownership
-    file: path={{ cert_path.cert.remote }} owner={{ perms.owner }} group={{ perms.group }} mode={{ perms.mode }}
+    file: 
+      path: '{{ cert_path.cert.remote }}'
+      owner: '{{ perms.owner }}' 
+      group: '{{ perms.group }}'
+      mode: '{{ perms.mode }}'

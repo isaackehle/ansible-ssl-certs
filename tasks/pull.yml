@@ -1,10 +1,14 @@
 ---
   - name: Ensure local path exists (pull csr)
-    file: path="{{ base_paths.local }}" state=directory
+    file: 
+      path: "{{ base_paths.local }}" 
+      state: directory
     connection: local
 
   - name: Copy keys and certs to local private directory
-    fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
+    synchronize:
+      src: '{{ item.src }}'
+      dest: '{{ item.dest }}'
     become: true
     with_items:
       - { src: "{{ cert_path.csr.remote }}", dest: "{{ cert_path.csr.local }}" }
