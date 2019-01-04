@@ -1,10 +1,5 @@
 ---
 
-# https://docs.mongodb.com/manual/tutorial/configure-x509-client-authentication/
-# http://www.mad-hacking.net/documentation/linux/security/ssl-tls/creating-csr.xml
-# https://superuser.com/questions/947061/openssl-unable-to-find-distinguished-name-in-config#947080
-# keyUsage = keyEncipherment, dataEncipherment
-
 - name: Set filenames for remote
   set_fact: 
     keyout_file: '{{ cert_path.key.remote }}'
@@ -21,7 +16,6 @@
   template: 
     src: ../templates/openssl.conf.j2
     dest: /tmp/openssl.conf
-  run_once: true
 
 - name: Set args
   set_fact: 
