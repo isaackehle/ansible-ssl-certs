@@ -1,6 +1,6 @@
 {
   "name": "ansible-ssl-certs",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Generate and/or deploy SSL certificate",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
