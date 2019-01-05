@@ -1,33 +1,16 @@
 ---
 # This deploys the CA-signed cert from the local host to the remote
 
-- name: Ensure remote path exists
-  file: path="{{ sc_deploy_path }}" state=directory owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_deploy_mode }}
-
-- stat: path={{ sc_chain_local }}
-  connection: local
-  register: stat_chain
-
-- name: Put cert into chain file
-  connection: local
-  shell: cat {{ sc_cert_local }} > {{ sc_chain_local }}
-  when: not stat_chain.stat.exists
-
-- name: Add a new line
-  connection: local
-  shell: echo " " >> {{ sc_chain_local }}
-  when: not stat_chain.stat.exists
-
-- name: Put key into chain file
-  connection: local
-  shell: cat {{ sc_key_local }} >> {{ sc_chain_local }}
-  when: not stat_chain.stat.exists
-
 - name: Copy certs that are to be deployed
-#    debug: msg="item={{ item }}"
-  copy: src={{ item.src }} dest={{ item.dest }} owner={{ sc_owner }} group={{ sc_group }} mode={{ sc_mode }}
+  copy: 
+    src: "{{ item.src }}" 
+    dest: "{{ item.dest }}" 
+    owner: "{{ perms.owner }}" 
+    group: "{{ perms.group }}" 
+    mode: "{{ perms.mode }}"
   become: true
   with_items:
-    - { src: "{{ sc_cert_local }}", dest: "{{ sc_cert_remote }}" }
-    - { src: "{{ sc_interm_local }}", dest: "{{ sc_interm_remote }}" }
-    - { src: "{{ sc_chain_local }}", dest: "{{ sc_chain_remote }}" }
+    - { src: "{{ cert_path.cert.local }}", dest: "{{ cert_path.cert.remote }}" }
+    - { src: "{{ cert_path.intermediate.local }}", dest: "{{ cert_path.intermediate.remote }}" }
+    - { src: "{{ cert_path.chain.local }}", dest: "{{ cert_path.chain.remote }}" }
+    - { src: "{{ cert_path.key.local }}", dest: "{{ cert_path.key.remote }}" }

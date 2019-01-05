@@ -1,0 +1,36 @@
+[ req ]
+default_bits                  = {{ keygen.bits }}
+default_md                    = sha256
+encrypt_key                   = no
+distinguished_name            = req_distinguished_name
+attributes                    = req_attributes
+req_extensions                = v3_req # The extensions to add to a certificate request
+prompt                        = no
+{% if passphrase %}
+output_password               = {{ passphrase }}
+{% endif %}
+
+[ req_distinguished_name ]
+C                             = {{ cert_config.country }}
+ST                            = {{ cert_config.state }}
+L                             = {{ cert_config.locality }}
+O                             = {{ cert_config.organization }}
+OU                            = {{ cert_config.ou }}
+CN                            = {{ cert_config.cn }}
+emailAddress                  = {{ cert_config.email }}
+DC                            = {{ cert_config.dc }}
+
+[ req_attributes ]
+
+[ v3_req ]
+keyUsage = {{ keyUsage }}
+{% if extendedKeyUsage %}
+extendedKeyUsage = {{ extendedKeyUsage }}
+{% endif %}
+#subjectAltName = @alt_names
+
+#[ alt_names ]
+#DNS.1 = www.company.com
+#DNS.2 = company.com
+#DNS.3 = www.company.net 
+#DNS.4 = company.net 
