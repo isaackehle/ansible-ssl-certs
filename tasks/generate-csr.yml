@@ -12,10 +12,18 @@
     out_file: '{{ cert_path.csr.local }}'
   when: inventory_hostname == 'localhost'
 
-- name: Save the temp config file
+- name: Save the temp config file (remote)
   template: 
     src: ../templates/openssl.conf.j2
     dest: /tmp/openssl.conf
+  when: inventory_hostname != 'localhost'
+
+- name: Save the temp config file (local)
+  template: 
+    src: ../templates/openssl.conf.j2
+    dest: /tmp/openssl.conf
+  connection: local
+  when: inventory_hostname == 'localhost'
 
 - name: Set args
   set_fact: 
