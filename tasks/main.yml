@@ -3,7 +3,7 @@
   fail: 
     msg: "Please ensure '{{ item }}' is set"
   when:
-    - not item is defined or item == ""
+    - not item is defined or item | length == 0
   with_items:
     - flags
 
@@ -67,21 +67,21 @@
 
 - name: Determine other needs
   set_fact:
-    need_generate: "{{ need_remote == true or need_local == true or force == true }}"
-    need_pull: "{{ need_local == true or force == true }}"
+    need_generate: "{{ need_remote or need_local or force }}"
+    need_pull: "{{ need_local or force }}"
 
 - name: Generate CSR
   include_tasks: generate-csr.yml
   when:
     - ((['create_csr'] | intersect(flags)) | length > 0)
-    - need_generate == true
+    - need_generate
 
 - name: Pull CSR
   include_tasks: pull-csr.yml
   when: >
     ((['create_csr', 'pull_csr'] | intersect(flags)) | length > 0) and
     ( inventory_hostname != 'localhost' ) and
-    ( need_pull == true )
+    ( need_pull )
 
 - name: Deploy Certificates
   include_tasks: deploy.yml
