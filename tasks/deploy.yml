@@ -2,15 +2,21 @@
 # This deploys the CA-signed cert from the local host to the remote
 
 - name: Copy certs that are to be deployed
-  copy: 
-    src: "{{ item.src }}" 
-    dest: "{{ item.dest }}" 
-    owner: "{{ perms.owner }}" 
-    group: "{{ perms.group }}" 
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ perms.owner }}"
+    group: "{{ perms.group }}"
     mode: "{{ perms.mode }}"
   become: true
   with_items:
     - { src: "{{ cert_path.cert.local }}", dest: "{{ cert_path.cert.remote }}" }
-    - { src: "{{ cert_path.intermediate.local }}", dest: "{{ cert_path.intermediate.remote }}" }
-    - { src: "{{ cert_path.chain.local }}", dest: "{{ cert_path.chain.remote }}" }
+    - {
+        src: "{{ cert_path.intermediate.local }}",
+        dest: "{{ cert_path.intermediate.remote }}",
+      }
+    - {
+        src: "{{ cert_path.chain.local }}",
+        dest: "{{ cert_path.chain.remote }}",
+      }
     - { src: "{{ cert_path.key.local }}", dest: "{{ cert_path.key.remote }}" }

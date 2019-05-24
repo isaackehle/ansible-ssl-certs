@@ -1,6 +1,6 @@
 ---
 - name: Ensure Required Items
-  fail: 
+  fail:
     msg: "Please ensure '{{ item }}' is set"
   when:
     - not item is defined or item | length == 0
@@ -8,52 +8,45 @@
     - flags
 
 - name: Ensure OpenSSL is installed
-  apt: 
-    name: openssl 
+  apt:
+    name: openssl
     state: present
   when: ansible_os_family is defined and ansible_os_family == "Debian"
 
 - name: Ensure remote path exists
-  file: 
-    path: '{{ base_paths.remote }}' 
-    state: directory 
-    owner: '{{ perms.owner }}' 
-    group: '{{ perms.group }}' 
-    mode: '{{ perms.mode }}'
+  file:
+    path: "{{ base_paths.remote }}"
+    state: directory
+    owner: "{{ perms.owner }}"
+    group: "{{ perms.group }}"
+    mode: "{{ perms.mode }}"
   become: true
   when: ((['create_csr', 'deploy'] | intersect(flags)) | length > 0) and (inventory_hostname != 'localhost')
 
-#
-# Check which local files exist
-#
 - name: Get stats for cert_path.csr.local -- {{ cert_path.csr.local }}
-  stat: 
-    path: '{{ cert_path.csr.local }}'
+  stat:
+    path: "{{ cert_path.csr.local }}"
   connection: local
   register: stat_csr_local
   become: false
 
 - name: Get stats for cert_path.key.local -- {{ cert_path.key.local }}
-  stat: 
-    path: '{{ cert_path.key.local }}'
+  stat:
+    path: "{{ cert_path.key.local }}"
   connection: local
   register: stat_key_local
   become: false
 
 - name: Get stats for cert_path.csr.remote -- {{ cert_path.csr.remote }}
-  stat: 
-    path: '{{ cert_path.csr.remote }}'
+  stat:
+    path: "{{ cert_path.csr.remote }}"
   register: stat_csr_remote
   become: true
   when: inventory_hostname != 'localhost'
 
-#
-# Create a CSR on the server if it does not exist, and user wants to generate one
-#
-
 - name: Determine if remote is needed based on stats
   set_fact:
-    need_remote: "{{ stat_csr_remote.stat.exists == false }}"
+    need_remote: "{{ not stat_csr_remote.stat.exists }}"
   when: inventory_hostname != 'localhost'
 
 - name: No need for remove when using local
@@ -63,7 +56,7 @@
 
 - name: Determine if local is needed based on stats
   set_fact:
-    need_local: "{{ stat_csr_local.stat.exists == false }}"
+    need_local: "{{ not stat_csr_local.stat.exists }}"
 
 - name: Determine other needs
   set_fact:

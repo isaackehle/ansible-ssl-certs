@@ -1,19 +1,25 @@
 ---
-  - name: Ensure local path exists (pull csr)
-    file: 
-      path: "{{ base_paths.local }}" 
-      state: directory
-    connection: local
+- name: Ensure local path exists (pull csr)
+  file:
+    path: "{{ base_paths.local }}"
+    state: directory
+  connection: local
 
-  - name: Copy keys and certs to local private directory
-    synchronize:
-      src: '{{ item.src }}'
-      dest: '{{ item.dest }}'
-      mode: pull
-    become: true
-    with_items:
-      - { src: "{{ cert_path.csr.remote }}", dest: "{{ cert_path.csr.local }}" }
-      - { src: "{{ cert_path.key.remote }}", dest: "{{ cert_path.key.local }}" }
-      - { src: "{{ cert_path.cert.remote }}", dest: "{{ cert_path.cert.local }}" }
-      - { src: "{{ cert_path.chain.remote }}", dest: "{{ cert_path.chain.local }}" }
-      - { src: "{{ cert_path.intermediate.remote }}", dest: "{{ cert_path.intermediate.local }}" }
+- name: Copy keys and certs to local private directory
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: pull
+  become: true
+  with_items:
+    - { src: "{{ cert_path.csr.remote }}", dest: "{{ cert_path.csr.local }}" }
+    - { src: "{{ cert_path.key.remote }}", dest: "{{ cert_path.key.local }}" }
+    - { src: "{{ cert_path.cert.remote }}", dest: "{{ cert_path.cert.local }}" }
+    - {
+        src: "{{ cert_path.chain.remote }}",
+        dest: "{{ cert_path.chain.local }}",
+      }
+    - {
+        src: "{{ cert_path.intermediate.remote }}",
+        dest: "{{ cert_path.intermediate.local }}",
+      }

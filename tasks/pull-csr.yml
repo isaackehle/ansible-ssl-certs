@@ -1,18 +1,18 @@
 ---
 # This copies the CSR from the remote host to local, so that it can be supplied to the CA for submittal.
 
-  - name: Ensure local path exists (pull csr)
-    file: 
-      path: "{{ base_paths.local }}" 
-      state: directory
-    connection: local
+- name: Ensure local path exists (pull csr)
+  file:
+    path: "{{ base_paths.local }}"
+    state: directory
+  connection: local
 
-  - name: Copy CSR/Key to local private directory
-    synchronize:
-      src: '{{ item.src }}'
-      dest: '{{ item.dest }}' 
-      mode: pull
-    become: true
-    with_items:
-      - { src: "{{ cert_path.csr.remote }}", dest: "{{ cert_path.csr.local }}" }
-      - { src: "{{ cert_path.key.remote }}", dest: "{{ cert_path.key.local }}" }
+- name: Copy CSR/Key to local private directory
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: pull
+  become: true
+  with_items:
+    - { src: "{{ cert_path.csr.remote }}", dest: "{{ cert_path.csr.local }}" }
+    - { src: "{{ cert_path.key.remote }}", dest: "{{ cert_path.key.local }}" }
