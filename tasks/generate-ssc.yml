@@ -1,17 +1,17 @@
 ---
-  - name: Generate self-signed SSL certificate
-    shell: |
-     openssl req -nodes -x509 
-     -days {{ cert_config.days }} 
-     -in {{ cert_path.csr.remote }} 
-     -key {{ cert_path.key.remote }} 
-     -out {{ cert_path.cert.remote }} 
-     -extensions v3_ca 
-     creates={{ cert_path.cert.remote }}
+- name: Generate self-signed SSL certificate
+  shell: |
+    openssl req -nodes -x509
+    -days {{ cert_config.days }}
+    -in {{ cert_path.csr.remote }}
+    -key {{ cert_path.key.remote }}
+    -out {{ cert_path.cert.remote }}
+    -extensions v3_ca
+    creates={{ cert_path.cert.remote }}
 
-  - name: Self-signed SSL certificate file ownership
-    file: 
-      path: '{{ cert_path.cert.remote }}'
-      owner: '{{ perms.owner }}' 
-      group: '{{ perms.group }}'
-      mode: '{{ perms.mode }}'
+- name: Self-signed SSL certificate file ownership
+  file:
+    path: "{{ cert_path.cert.remote }}"
+    owner: "{{ perms.owner }}"
+    group: "{{ perms.group }}"
+    mode: "{{ perms.mode }}"

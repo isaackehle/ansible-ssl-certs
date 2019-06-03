@@ -1,18 +1,21 @@
 ---
 # This copies the SSC from the remote host to local
 
-  - name: Ensure local path exists (pull ssc)
-    file: 
-      path: "{{ base_paths.local }}" 
-      state: directory
-    connection: local
+- name: Ensure local path exists (pull ssc)
+  file:
+    path: "{{ base_paths.local }}"
+    state: directory
+  connection: local
 
-  - name: Copy Certificates to local private directory
-    synchronize:
-      src: '{{ item.src }}'
-      dest: '{{ item.dest }}'
-      mode: pull
-    become: true
-    with_items:
-      - { src: "{{ cert_path.cert.remote }}", dest: "{{ cert_path.cert.local }}" }
-      - { src: "{{ cert_path.intermediate.remote }}", dest: "{{ cert_path.intermediate.local }}" }
+- name: Copy Certificates to local private directory
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: pull
+  become: true
+  with_items:
+    - { src: "{{ cert_path.cert.remote }}", dest: "{{ cert_path.cert.local }}" }
+    - {
+        src: "{{ cert_path.intermediate.remote }}",
+        dest: "{{ cert_path.intermediate.local }}",
+      }

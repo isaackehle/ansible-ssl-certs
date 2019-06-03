@@ -1,32 +1,31 @@
 ---
-
 - name: Set filenames for remote
-  set_fact: 
-    keyout_file: '{{ cert_path.key.remote }}'
-    out_file: '{{ cert_path.csr.remote }}'
+  set_fact:
+    keyout_file: "{{ cert_path.key.remote }}"
+    out_file: "{{ cert_path.csr.remote }}"
   when: inventory_hostname != 'localhost'
 
 - name: Set filenames for local
-  set_fact: 
-    keyout_file: '{{ cert_path.key.local }}'
-    out_file: '{{ cert_path.csr.local }}'
+  set_fact:
+    keyout_file: "{{ cert_path.key.local }}"
+    out_file: "{{ cert_path.csr.local }}"
   when: inventory_hostname == 'localhost'
 
 - name: Save the temp config file (remote)
-  template: 
+  template:
     src: ../templates/openssl.conf.j2
     dest: /tmp/openssl.conf
   when: inventory_hostname != 'localhost'
 
 - name: Save the temp config file (local)
-  template: 
+  template:
     src: ../templates/openssl.conf.j2
     dest: /tmp/openssl.conf
   connection: local
   when: inventory_hostname == 'localhost'
 
 - name: Set args
-  set_fact: 
+  set_fact:
     openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ out_file }} -keyout {{ keyout_file }}
 
 - name: Creating CSR and RSA key (remote)
@@ -35,12 +34,12 @@
   when: inventory_hostname != 'localhost'
 
 - name: Set Permissions
-  file: 
-    dest: '{{ item }}'
+  file:
+    dest: "{{ item }}"
     state: touch
-    owner: '{{ perms.owner }}' 
-    group: '{{ perms.group }}' 
-    mode: '{{ perms.mode }}'
+    owner: "{{ perms.owner }}"
+    group: "{{ perms.group }}"
+    mode: "{{ perms.mode }}"
   become: true
   with_items:
     - "{{ cert_path.csr.remote }}"
@@ -48,8 +47,8 @@
   when: inventory_hostname != 'localhost'
 
 - name: Ensure local path exists
-  file: 
-    path: '{{ base_paths.local }}'
+  file:
+    path: "{{ base_paths.local }}"
     state: directory
   connection: local
   when: inventory_hostname == 'localhost'
