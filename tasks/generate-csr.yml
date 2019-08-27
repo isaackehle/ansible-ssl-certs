@@ -21,7 +21,7 @@
   template:
     src: ../templates/openssl.conf.j2
     dest: /tmp/openssl.conf
-  connection: local
+  delegate_to: localhost
   when: inventory_hostname == 'localhost'
 
 - name: Set args
@@ -50,11 +50,11 @@
   file:
     path: "{{ base_paths.local }}"
     state: directory
-  connection: local
+  delegate_to: localhost
   when: inventory_hostname == 'localhost'
 
 - name: Creating CSR and RSA key (local)
   shell: openssl {{ openssl_args }}
-  connection: local
+  delegate_to: localhost
   become: false
   when: inventory_hostname == 'localhost'

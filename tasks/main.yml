@@ -26,14 +26,14 @@
 - name: Get stats for cert_path.csr.local -- {{ cert_path.csr.local }}
   stat:
     path: "{{ cert_path.csr.local }}"
-  connection: local
+  delegate_to: localhost
   register: stat_csr_local
   become: false
 
 - name: Get stats for cert_path.key.local -- {{ cert_path.key.local }}
   stat:
     path: "{{ cert_path.key.local }}"
-  connection: local
+  delegate_to: localhost
   register: stat_key_local
   become: false
 

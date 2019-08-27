@@ -3,7 +3,7 @@
   file:
     path: "{{ base_paths.local }}"
     state: directory
-  connection: local
+  delegate_to: localhost
 
 - name: Copy keys and certs to local private directory
   synchronize:
