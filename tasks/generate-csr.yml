@@ -9,7 +9,7 @@
   set_fact:
     openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ cert_path.csr }} -keyout {{ cert_path.key.local }}
 
-- name: Ensure empty folders
+- name: Ensure local path exists
   file:
     path: "{{ base_paths.local }}"
     state: directory
@@ -31,11 +31,3 @@
   with_items:
     - "{{ cert_path.csr }}"
     - "{{ cert_path.key.remote }}"
-  when: inventory_hostname != 'localhost'
-
-- name: Ensure local path exists
-  file:
-    path: "{{ base_paths.local }}"
-    state: directory
-  delegate_to: localhost
-  when: inventory_hostname == 'localhost'
