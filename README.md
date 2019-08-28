@@ -17,15 +17,15 @@ flags:
   dh_param:             set to true to generate a dhparam file
 
 cert_config:
-  country:              Country for the cert
-  locality:             Locality for the cert
-  state:                State for the cert
-  organization:         Organization for the cert
-  ou:                   Organizational Unit for the cert
-  cn:                   Common name for the cert, usually fqdn
-  dc:                   Domain Component for the cert, if any
-  email:                Email for the cert
-  subject:              Subject for the cert
+  country:              Country
+  locality:             Locality
+  state:                State
+  organization:         Organization
+  ou:                   Organizational Unit
+  cn:                   Common name, usually fqdn
+  dc:                   Domain Component, if any
+  email:                Email
+  subject:              Subject
 ```
 
 ## Examples

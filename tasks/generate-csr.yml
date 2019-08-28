@@ -1,13 +1,17 @@
 ---
-- name: Save the temporary openssl config file
+- name: Set tmp file name
+  set_fact:
+    tmpFileName: "/tmp/openssl-{{ cert_config.cn }}.conf"
+
+- name: Save the openssl config file
   template:
     src: ../templates/openssl.conf.j2
-    dest: /tmp/openssl.conf
+    dest: "/tmp/openssl-{{ cert_config.cn }}.conf"
   delegate_to: localhost
 
 - name: Set args
   set_fact:
-    openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ cert_path.csr }} -keyout {{ cert_path.key.local }}
+    openssl_args: "req -sha256 -nodes -config /tmp/openssl-{{ cert_config.cn }}.conf -newkey rsa:{{ keygen.bits }} -out {{ cert_path.csr }} -keyout {{ cert_path.key.local }}"
 
 - name: Ensure local path exists
   file:
@@ -20,14 +24,3 @@
   command: openssl {{ openssl_args }}
   delegate_to: localhost
 
-- name: Set Permissions
-  file:
-    dest: "{{ item }}"
-    state: touch
-    owner: "{{ perms.owner }}"
-    group: "{{ perms.group }}"
-    mode: "{{ perms.mode }}"
-  become: true
-  with_items:
-    - "{{ cert_path.csr }}"
-    - "{{ cert_path.key.remote }}"

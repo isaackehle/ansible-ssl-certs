@@ -7,11 +7,22 @@
   with_items:
     - flags
 
-- name: Ensure OpenSSL is installed
+- name: Ensure OpenSSL is installed, remotely
   apt:
     name: openssl
     state: present
   when: ansible_os_family is defined and ansible_os_family == "Debian"
+
+- name: Ensure OpenSSL is installed, locally
+  command: which openssl
+  register: openssl_check
+  delegate_to: localhost
+  run_once: yes
+
+- name: Fail when openssl is not installed
+  fail: 
+    msg: "Please ensure openssl is installed locally"
+  when: openssl_check.stdout.find('openssl') == -1
 
 - name: Ensure remote path exists
   file:
