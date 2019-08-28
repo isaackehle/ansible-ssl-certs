@@ -12,7 +12,6 @@
     mode: pull
   become: true
   with_items:
-    - { src: "{{ cert_path.csr.remote }}", dest: "{{ cert_path.csr.local }}" }
     - { src: "{{ cert_path.key.remote }}", dest: "{{ cert_path.key.local }}" }
     - { src: "{{ cert_path.cert.remote }}", dest: "{{ cert_path.cert.local }}" }
     - {

@@ -1,37 +1,24 @@
 ---
-- name: Set filenames for remote
-  set_fact:
-    keyout_file: "{{ cert_path.key.remote }}"
-    out_file: "{{ cert_path.csr.remote }}"
-  when: inventory_hostname != 'localhost'
-
-- name: Set filenames for local
-  set_fact:
-    keyout_file: "{{ cert_path.key.local }}"
-    out_file: "{{ cert_path.csr.local }}"
-  when: inventory_hostname == 'localhost'
-
-- name: Save the temp config file (remote)
-  template:
-    src: ../templates/openssl.conf.j2
-    dest: /tmp/openssl.conf
-  when: inventory_hostname != 'localhost'
-
-- name: Save the temp config file (local)
+- name: Save the temporary openssl config file
   template:
     src: ../templates/openssl.conf.j2
     dest: /tmp/openssl.conf
   delegate_to: localhost
-  when: inventory_hostname == 'localhost'
 
 - name: Set args
   set_fact:
-    openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ out_file }} -keyout {{ keyout_file }}
+    openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ cert_path.csr }} -keyout {{ cert_path.key.local }}
 
-- name: Creating CSR and RSA key (remote)
+- name: Ensure empty folders
+  file:
+    path: "{{ base_paths.local }}"
+    state: directory
+    recurse: yes
+  delegate_to: localhost
+
+- name: Creating CSR and RSA key
   command: openssl {{ openssl_args }}
-  become: true
-  when: inventory_hostname != 'localhost'
+  delegate_to: localhost
 
 - name: Set Permissions
   file:
@@ -42,7 +29,7 @@
     mode: "{{ perms.mode }}"
   become: true
   with_items:
-    - "{{ cert_path.csr.remote }}"
+    - "{{ cert_path.csr }}"
     - "{{ cert_path.key.remote }}"
   when: inventory_hostname != 'localhost'
 
@@ -51,10 +38,4 @@
     path: "{{ base_paths.local }}"
     state: directory
   delegate_to: localhost
-  when: inventory_hostname == 'localhost'
-
-- name: Creating CSR and RSA key (local)
-  shell: openssl {{ openssl_args }}
-  delegate_to: localhost
-  become: false
   when: inventory_hostname == 'localhost'
