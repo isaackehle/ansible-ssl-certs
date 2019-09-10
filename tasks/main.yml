@@ -7,11 +7,22 @@
   with_items:
     - flags
 
-- name: Ensure OpenSSL is installed
+- name: Ensure OpenSSL is installed, remotely
   apt:
     name: openssl
     state: present
   when: ansible_os_family is defined and ansible_os_family == "Debian"
+
+- name: Ensure OpenSSL is installed, locally
+  command: which openssl
+  register: openssl_check
+  delegate_to: localhost
+  run_once: yes
+
+- name: Fail when openssl is not installed
+  fail: 
+    msg: "Please ensure openssl is installed locally"
+  when: openssl_check.stdout.find('openssl') == -1
 
 - name: Ensure remote path exists
   file:
@@ -23,30 +34,23 @@
   become: true
   when: ((['create_csr', 'deploy'] | intersect(flags)) | length > 0) and (inventory_hostname != 'localhost')
 
-- name: Get stats for cert_path.csr.local -- {{ cert_path.csr.local }}
+- name: Get stats for cert_path.csr -- {{ cert_path.csr }}
   stat:
-    path: "{{ cert_path.csr.local }}"
-  connection: local
-  register: stat_csr_local
+    path: "{{ cert_path.csr }}"
+  delegate_to: localhost
+  register: stat_csr
   become: false
 
 - name: Get stats for cert_path.key.local -- {{ cert_path.key.local }}
   stat:
     path: "{{ cert_path.key.local }}"
-  connection: local
+  delegate_to: localhost
   register: stat_key_local
   become: false
 
-- name: Get stats for cert_path.csr.remote -- {{ cert_path.csr.remote }}
-  stat:
-    path: "{{ cert_path.csr.remote }}"
-  register: stat_csr_remote
-  become: true
-  when: inventory_hostname != 'localhost'
-
 - name: Determine if remote is needed based on stats
   set_fact:
-    need_remote: "{{ not stat_csr_remote.stat.exists }}"
+    need_remote: "{{ not stat_csr.stat.exists }}"
   when: inventory_hostname != 'localhost'
 
 - name: No need for remove when using local
@@ -56,12 +60,12 @@
 
 - name: Determine if local is needed based on stats
   set_fact:
-    need_local: "{{ not stat_csr_local.stat.exists }}"
+    need_local: "{{ not stat_csr.stat.exists }}"
 
 - name: Determine other needs
   set_fact:
     need_generate: "{{ need_remote or need_local or force }}"
-    need_pull: "{{ need_local or force }}"
+    # need_pull: "{{ need_local or force }}"
 
 - name: Generate CSR
   include_tasks: generate-csr.yml
@@ -69,12 +73,12 @@
     - ((['create_csr'] | intersect(flags)) | length > 0)
     - need_generate
 
-- name: Pull CSR
-  include_tasks: pull-csr.yml
-  when: >
-    ((['create_csr', 'pull_csr'] | intersect(flags)) | length > 0) and
-    ( inventory_hostname != 'localhost' ) and
-    ( need_pull )
+# - name: Pull CSR
+#   include_tasks: pull-csr.yml
+#   when: >
+#     ((['create_csr', 'pull_csr'] | intersect(flags)) | length > 0) and
+#     ( inventory_hostname != 'localhost' ) and
+#     ( need_pull )
 
 - name: Deploy Certificates
   include_tasks: deploy.yml

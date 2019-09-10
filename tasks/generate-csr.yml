@@ -1,60 +1,26 @@
 ---
-- name: Set filenames for remote
+- name: Set tmp file name
   set_fact:
-    keyout_file: "{{ cert_path.key.remote }}"
-    out_file: "{{ cert_path.csr.remote }}"
-  when: inventory_hostname != 'localhost'
+    tmpFileName: "/tmp/openssl-{{ cert_config.cn }}.conf"
 
-- name: Set filenames for local
-  set_fact:
-    keyout_file: "{{ cert_path.key.local }}"
-    out_file: "{{ cert_path.csr.local }}"
-  when: inventory_hostname == 'localhost'
-
-- name: Save the temp config file (remote)
+- name: Save the openssl config file
   template:
     src: ../templates/openssl.conf.j2
-    dest: /tmp/openssl.conf
-  when: inventory_hostname != 'localhost'
-
-- name: Save the temp config file (local)
-  template:
-    src: ../templates/openssl.conf.j2
-    dest: /tmp/openssl.conf
-  connection: local
-  when: inventory_hostname == 'localhost'
+    dest: "/tmp/openssl-{{ cert_config.cn }}.conf"
+  delegate_to: localhost
 
 - name: Set args
   set_fact:
-    openssl_args: req -sha256 -nodes -config /tmp/openssl.conf -newkey rsa:{{ keygen.bits }} -out {{ out_file }} -keyout {{ keyout_file }}
-
-- name: Creating CSR and RSA key (remote)
-  command: openssl {{ openssl_args }}
-  become: true
-  when: inventory_hostname != 'localhost'
-
-- name: Set Permissions
-  file:
-    dest: "{{ item }}"
-    state: touch
-    owner: "{{ perms.owner }}"
-    group: "{{ perms.group }}"
-    mode: "{{ perms.mode }}"
-  become: true
-  with_items:
-    - "{{ cert_path.csr.remote }}"
-    - "{{ cert_path.key.remote }}"
-  when: inventory_hostname != 'localhost'
+    openssl_args: "req -sha256 -nodes -config /tmp/openssl-{{ cert_config.cn }}.conf -newkey rsa:{{ keygen.bits }} -out {{ cert_path.csr }} -keyout {{ cert_path.key.local }}"
 
 - name: Ensure local path exists
   file:
     path: "{{ base_paths.local }}"
     state: directory
-  connection: local
-  when: inventory_hostname == 'localhost'
+    recurse: yes
+  delegate_to: localhost
 
-- name: Creating CSR and RSA key (local)
-  shell: openssl {{ openssl_args }}
-  connection: local
-  become: false
-  when: inventory_hostname == 'localhost'
+- name: Creating CSR and RSA key
+  command: openssl {{ openssl_args }}
+  delegate_to: localhost
+

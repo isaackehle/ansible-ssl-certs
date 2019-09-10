@@ -5,7 +5,7 @@
   file:
     path: "{{ base_paths.local }}"
     state: directory
-  connection: local
+  delegate_to: localhost
 
 - name: Copy Certificates to local private directory
   synchronize:
