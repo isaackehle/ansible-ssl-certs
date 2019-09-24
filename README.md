@@ -34,7 +34,7 @@ cert_config:
 
 ```yaml
 - hosts: all
-  gather_facts: "{{ inventory_hostname != 'localhost' }}"
+  gather_facts: inventory_hostname != 'localhost'
   vars:
     flags:
       - client_config
@@ -48,7 +48,7 @@ cert_config:
 
 ```yaml
 - hosts: all
-  gather_facts: "{{ inventory_hostname != 'localhost' }}"
+  gather_facts: inventory_hostname != 'localhost'
   vars:
     flags:
       - deploy
