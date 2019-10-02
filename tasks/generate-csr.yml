@@ -5,13 +5,18 @@
 
 - name: Save the openssl config file
   template:
-    src: ../templates/openssl.conf.j2
+    src: templates/openssl.conf.j2
     dest: "/tmp/openssl-{{ cert_config.cn }}.conf"
   delegate_to: localhost
 
 - name: Set args
   set_fact:
-    openssl_args: "req -sha256 -nodes -config /tmp/openssl-{{ cert_config.cn }}.conf -newkey rsa:{{ keygen.bits }} -out '{{ cert_path.csr }}' -keyout '{{ cert_path.key.local }}'"
+    openssl_args: >
+      "req -sha256 -nodes"
+      "-config /tmp/openssl-{{ cert_config.cn }}.conf"
+      "-newkey rsa:{{ keygen.bits }}"
+      "-out '{{ cert_path.csr }}'"
+      "-keyout '{{ cert_path.key.local }}'"
 
 - name: Ensure local path exists
   file:
@@ -23,4 +28,4 @@
 - name: Creating CSR and RSA key
   command: openssl {{ openssl_args }}
   delegate_to: localhost
-
+  when: true

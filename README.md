@@ -56,6 +56,13 @@ cert_config:
     - pgkehle.ssl-certs
 ```
 
+## Linting
+
+```bash
+yamllint -c yamllint.yaml .
+ansible-lint .
+```
+
 ## License
 
 MIT
