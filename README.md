@@ -34,7 +34,7 @@ cert_config:
 
 ```yaml
 - hosts: all
-  gather_facts: "{{ inventory_hostname != 'localhost' }}"
+  gather_facts: inventory_hostname != 'localhost'
   vars:
     flags:
       - client_config
@@ -48,12 +48,19 @@ cert_config:
 
 ```yaml
 - hosts: all
-  gather_facts: "{{ inventory_hostname != 'localhost' }}"
+  gather_facts: inventory_hostname != 'localhost'
   vars:
     flags:
       - deploy
   roles:
     - pgkehle.ssl-certs
+```
+
+## Linting
+
+```bash
+yamllint -c yamllint.yaml .
+ansible-lint .
 ```
 
 ## License

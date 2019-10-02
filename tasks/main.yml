@@ -18,9 +18,10 @@
   register: openssl_check
   delegate_to: localhost
   run_once: yes
+  when: true
 
 - name: Fail when openssl is not installed
-  fail: 
+  fail:
     msg: "Please ensure openssl is installed locally"
   when: openssl_check.stdout.find('openssl') == -1
 
