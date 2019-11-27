@@ -25,6 +25,9 @@
     msg: "Please ensure openssl is installed locally"
   when: openssl_check.stdout.find('openssl') == -1
 
+- debug: var=remote_path
+- debug: var=base_paths
+
 - name: Ensure remote path exists
   file:
     path: "{{ base_paths.remote }}"

@@ -9,14 +9,11 @@
     dest: "/tmp/openssl-{{ cert_config.cn }}.conf"
   delegate_to: localhost
 
+- command: which openssl
+
 - name: Set args
   set_fact:
-    openssl_args: >
-      "req -sha256 -nodes"
-      "-config /tmp/openssl-{{ cert_config.cn }}.conf"
-      "-newkey rsa:{{ keygen.bits }}"
-      "-out '{{ cert_path.csr }}'"
-      "-keyout '{{ cert_path.key.local }}'"
+    openssl_args: "req -sha256 -nodes -config /tmp/openssl-{{ cert_config.cn }}.conf -newkey rsa:{{ keygen.bits }} -out '{{ cert_path.csr }}' -keyout '{{ cert_path.key.local }}' "
 
 - name: Ensure local path exists
   file:
